@@ -51,6 +51,8 @@
                                     									
                                     <listOptionValue builtIn="false" value="/opt/ros/noetic/include"/>
                                     									
+                                    <listOptionValue builtIn="false" value="/home/hankm/catkin_ws/src"/>
+                                    									
                                     <listOptionValue builtIn="false" value="/home/hankm/catkin_ws/devel/include"/>
                                     								
                                 </option>

@@ -32,6 +32,8 @@
   <build_depend>dynamic_reconfigure</build_depend>
   <build_depend>nodelet</build_depend>
   <build_depend>libpcl-all-dev</build_depend>
+  <build_depend>gridmap_2d</build_depend>
+  <build_depend>cv_bridge</build_depend>
 
  <run_depend>roscpp</run_depend>
  <run_depend>visualization_msgs</run_depend>
@@ -47,6 +49,9 @@
  <run_depend>dynamic_reconfigure</run_depend>
  <run_depend>nodelet</run_depend>
  <run_depend>libpcl-all</run_depend>
+ <run_depend>gridmap_2d</run_depend>
+ <run_depend>cv_bridge</run_depend>
+
  
 </package>
 

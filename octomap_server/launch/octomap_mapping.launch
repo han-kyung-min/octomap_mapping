@@ -19,6 +19,17 @@
 		<!-- data source to integrate (PointCloud2) -->
 		<!--remap from="cloud_in" to="/narrow_stereo/points_filtered2" /-->
 		<remap from="/cloud_in" to="/gt_point_cloud_xyz" />
+    </node>
+    
+    <!-- Publishes the voxel grid to rviz for display -->
+    <node pkg="costmap_2d" type="costmap_2d_markers" name="voxel_visualizer">
+        <remap from="voxel_grid" to="costmap/voxel_grid"/>
+    </node>
 
-	</node>
+    <!-- Run the costmap node -->
+    <node name="costmap_node" pkg="costmap_2d" type="costmap_2d_node" >
+        <remap from="/base_link" to="/base_link_gt"/>
+        <remap from="/map" to="/world"/>
+        <!-- rosparam file="$(find costmap_2d)/launch/example_params.yaml" command="load" ns="costmap" /-->
+    </node>
 </launch>

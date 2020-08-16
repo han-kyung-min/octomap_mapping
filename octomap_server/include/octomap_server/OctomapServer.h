@@ -30,10 +30,18 @@
 #ifndef OCTOMAP_SERVER_OCTOMAPSERVER_H
 #define OCTOMAP_SERVER_OCTOMAPSERVER_H
 
+#include <mutex>
 #include <ros/ros.h>
 #include <visualization_msgs/MarkerArray.h>
 #include <nav_msgs/OccupancyGrid.h>
 #include <std_msgs/ColorRGBA.h>
+
+#include "/home/hankm/catkin_ws/src/gridmap_2d/include/gridmap_2d/GridMap2D.h"
+#include <gridmap_2d/GridMap2D.h>
+#include <cv_bridge/cv_bridge.h>
+#include <tf/transform_listener.h>
+#include <sensor_msgs/Image.h>
+//#include <sensor_msgs/Image_encodings.h>
 
 // #include <moveit_msgs/CollisionObject.h>
 // #include <moveit_msgs/CollisionMap.h>
@@ -67,6 +75,8 @@
 #include <octomap/OcTreeKey.h>
 
 //#define COLOR_OCTOMAP_SERVER // switch color here - easier maintenance, only maintain OctomapServer. Two targets are defined in the cmake, octomap_server_color and octomap_server. One has this defined, and the other doesn't
+
+#define UNKNOWN (-1)
 
 #ifdef COLOR_OCTOMAP_SERVER
 #include <octomap/ColorOcTree.h>
@@ -247,7 +257,6 @@ protected:
   double m_groundFilterPlaneDistance;
 
   bool m_compressMap;
-
   bool m_initConfig;
 
   // downprojected 2D map:
@@ -259,6 +268,15 @@ protected:
   unsigned m_multires2DScale;
   bool m_projectCompleteMap;
   bool m_useColoredMap;
+
+  // map image
+  nav_msgs::OccupancyGridConstPtr m_pgridmap;
+  gridmap_2d::GridMap2D m_oGridMap2D;
+  cv_bridge::CvImagePtr m_cb_ptr ;
+  Eigen::Matrix4f m_sensorToWorld;
+
+public:
+  std::mutex m_mtxSensorToWorld;
 };
 }
 
