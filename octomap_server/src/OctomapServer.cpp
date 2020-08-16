@@ -1126,9 +1126,9 @@ void OctomapServer::update2DMap(const OcTreeT::iterator& it, bool occupied){
   if (it.getDepth() == m_maxTreeDepth){
     unsigned idx = mapIdx(it.getKey());
     if (occupied)
-      m_gridmap.data[mapIdx(it.getKey())] = 100; //val;
+      m_gridmap.data[mapIdx(it.getKey())] = 0; //val;
     else if (m_gridmap.data[idx] == -1){ // unknown case
-      m_gridmap.data[idx] = 0;			 // set it as a free node
+      m_gridmap.data[idx] = 100;			 // set it as a free node
     }
 
   } else{
@@ -1139,9 +1139,9 @@ void OctomapServer::update2DMap(const OcTreeT::iterator& it, bool occupied){
       for(int dy=0; dy < intSize; dy++){
         unsigned idx = mapIdx(i, (minKey[1]+dy - m_paddedMinKey[1])/m_multires2DScale);
         if (occupied)
-          m_gridmap.data[idx] = 100; //val; // 100
+          m_gridmap.data[idx] = 0; //val; // 100
         else if (m_gridmap.data[idx] == -1){
-          m_gridmap.data[idx] = 0;
+          m_gridmap.data[idx] = 100; //0
         }
       }
     }
