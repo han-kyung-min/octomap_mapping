@@ -47,8 +47,7 @@ OctomapServer::OctomapServer(const ros::NodeHandle private_nh_, const ros::NodeH
   m_reconfigureServer(m_config_mutex, private_nh_),
   m_octree(NULL),
   m_maxRange(-1.0),
-  //m_worldFrameId("/map"), m_baseFrameId("base_footprint"),
-  m_worldFrameId("/world"), m_baseFrameId("base_link_gt"), // by kmHan
+  m_worldFrameId("/world"), m_baseFrameId("base_link_gt"),
   m_useHeightMap(true),
   m_useColoredMap(false),
   m_colorFactor(0.8),
@@ -135,7 +134,7 @@ OctomapServer::OctomapServer(const ros::NodeHandle private_nh_, const ros::NodeH
   m_octree->setProbMiss(probMiss);
   m_octree->setClampingThresMin(thresMin);
   m_octree->setClampingThresMax(thresMax);
-  m_treeDepth = m_octree->getTreeDepth();
+  m_treeDepth = m_octree->getTreeDepth();  // is set as 16 by default in OcTreeBaseImp
   m_maxTreeDepth = m_treeDepth;
   m_gridmap.info.resolution = m_res;
 
@@ -159,6 +158,7 @@ OctomapServer::OctomapServer(const ros::NodeHandle private_nh_, const ros::NodeH
   m_colorFree.a = a;
 
   m_nh_private.param("publish_free_space", m_publishFreeSpace, m_publishFreeSpace);
+
   m_nh_private.param("latch", m_latchedTopics, m_latchedTopics);
   if (m_latchedTopics){
     ROS_INFO("Publishing latched (single publish will take longer, all topics are prepared)");
@@ -189,6 +189,12 @@ OctomapServer::OctomapServer(const ros::NodeHandle private_nh_, const ros::NodeH
   m_pgridmap = boost::shared_ptr<nav_msgs::OccupancyGrid>( &m_gridmap );
   m_oGridMap2D = gridmap_2d::GridMap2D(); // m_pgridmap, false );
 
+  m_ofs_servertime.open("/home/hankm/catkin_ws/src/octomap_mapping/octomap_server_timing.txt");
+  m_ofs_servertime.precision(4);
+
+  m_ofs_inserttime.open("/home/hankm/catkin_ws/src/octomap_mapping/octomap_pcl_insert_timing.txt");
+  m_ofs_inserttime.precision(4);
+
 }
 
 OctomapServer::~OctomapServer(){
@@ -208,6 +214,8 @@ OctomapServer::~OctomapServer(){
     m_octree = NULL;
   }
 
+  m_ofs_servertime.close();
+  m_ofs_inserttime.close();
 }
 
 bool OctomapServer::openFile(const std::string& filename){
@@ -264,15 +272,25 @@ bool OctomapServer::openFile(const std::string& filename){
 }
 
 void OctomapServer::insertCloudCallback(const sensor_msgs::PointCloud2::ConstPtr& cloud){
-  ros::WallTime startTime = ros::WallTime::now();
+  ros::WallTime startTime, endTime;
 
+//static double cbcnt = 1.0;
+//static double msg2pclTime = 0;
+//static double tformTime = 0;
+//static double insertTime = 0;
+//static double maxinsertTime = 0;
 
-  //
+startTime = ros::WallTime::now();
   // ground filtering in base frame
-  //
   PCLPointCloud pc; // input cloud for filtering and ground-detection
   pcl::fromROSMsg(*cloud, pc);
 
+endTime = ros::WallTime::now();
+double msg2pclTime = (endTime - startTime).toNSec() * 1e-6 ;
+
+//  ROS_INFO_STREAM("msg to pcl time (ms): " << execution_time);
+
+startTime = ros::WallTime::now();
   tf::StampedTransform sensorToWorldTf;
   try {
     m_tfListener.lookupTransform(m_worldFrameId, cloud->header.frame_id, cloud->header.stamp, sensorToWorldTf);
@@ -299,7 +317,7 @@ void OctomapServer::insertCloudCallback(const sensor_msgs::PointCloud2::ConstPtr
   PCLPointCloud pc_ground; // segmented ground plane
   PCLPointCloud pc_nonground; // everything else
 
-  if (m_filterGroundPlane){
+  if (m_filterGroundPlane){ // is false
     tf::StampedTransform sensorToBaseTf, baseToWorldTf;
     try{
       m_tfListener.waitForTransform(m_baseFrameId, cloud->header.frame_id, cloud->header.stamp, ros::Duration(0.2));
@@ -348,15 +366,33 @@ void OctomapServer::insertCloudCallback(const sensor_msgs::PointCloud2::ConstPtr
     pc_nonground.header = pc.header;
   }
 
+endTime = ros::WallTime::now();
+double segTime = (endTime - startTime).toNSec() * 1e-6    ;
+
+startTime = ros::WallTime::now();
   insertScan(sensorToWorldTf.getOrigin(), pc_ground, pc_nonground);
 
-  double total_elapsed = (ros::WallTime::now() - startTime).toSec();
-  ROS_DEBUG("Pointcloud insertion in OctomapServer done (%zu+%zu pts (ground/nonground), %f sec)", pc_ground.size(), pc_nonground.size(), total_elapsed);
+endTime = ros::WallTime::now();
+double insertTime = (endTime - startTime).toNSec() * 1e-6   ;
 
+//cbcnt++;
+
+  //double total_elapsed = (ros::WallTime::now() - startTime).toSec();
+ROS_WARN("msg2pcl, tform, insertion, total: \n (%04f) (%04f) (%04f) (%04f) (ms)",  msg2pclTime, segTime, insertTime, msg2pclTime+segTime+insertTime);
+ROS_WARN("Pointcloud insertion in OctomapServer done \n (%zu+%zu pts (ground/nonground))", pc_ground.size(), pc_nonground.size());
+
+
+startTime = ros::WallTime::now();
   publishAll(cloud->header.stamp);
+endTime = ros::WallTime::now();
+double publishTime = (endTime - startTime).toNSec() * 1e-6   ;
+
+m_ofs_servertime << std::fixed << msg2pclTime << " " << segTime << " " << insertTime << " " << publishTime << std::endl;
+
 }
 
-void OctomapServer::insertScan(const tf::Point& sensorOriginTf, const PCLPointCloud& ground, const PCLPointCloud& nonground){
+void OctomapServer::insertScan(const tf::Point& sensorOriginTf, const PCLPointCloud& ground, const PCLPointCloud& nonground)
+{
   point3d sensorOrigin = pointTfToOctomap(sensorOriginTf);
 
   if (!m_octree->coordToKeyChecked(sensorOrigin, m_updateBBXMin)
@@ -369,11 +405,16 @@ void OctomapServer::insertScan(const tf::Point& sensorOriginTf, const PCLPointCl
   unsigned char* colors = new unsigned char[3];
 #endif
 
+ros::WallTime startTime, endTime;
+
+startTime = ros::WallTime::now();
   // instead of direct scan insertion, compute update to filter ground:
   KeySet free_cells, occupied_cells;
   // insert ground points only as free:
   for (PCLPointCloud::const_iterator it = ground.begin(); it != ground.end(); ++it){
     point3d point(it->x, it->y, it->z);
+
+    //ROS_WARN("grd x y z: ", point.x(), point.y(), point.z() ); // # of grd pts is zero b/c filtergroundplane is set to false
     // maxrange check
     if ((m_maxRange > 0.0) && ((point - sensorOrigin).norm() > m_maxRange) ) {
       point = sensorOrigin + (point - sensorOrigin).normalized() * m_maxRange;
@@ -393,9 +434,16 @@ void OctomapServer::insertScan(const tf::Point& sensorOriginTf, const PCLPointCl
     }
   }
 
+
+endTime = ros::WallTime::now();
+double rayGroundPointTime = (endTime - startTime).toNSec() * 1e-6   ;
+
+startTime = ros::WallTime::now();
   // all other points: free on ray, occupied on endpoint:
   for (PCLPointCloud::const_iterator it = nonground.begin(); it != nonground.end(); ++it){
     point3d point(it->x, it->y, it->z);
+
+    //ROS_WARN("non grd x y z: %f %f %f", point.x(), point.y(), point.z() ); // x, y, z are points in spaces (meters)?
     // maxrange check
     if ((m_maxRange < 0.0) || ((point - sensorOrigin).norm() <= m_maxRange) ) {
 
@@ -434,6 +482,13 @@ void OctomapServer::insertScan(const tf::Point& sensorOriginTf, const PCLPointCl
     }
   }
 
+ROS_WARN("free_cells1 nongrd: %u %u\n", free_cells.size(), nonground.size() );
+
+endTime = ros::WallTime::now();
+double rayNongroundPointTime = (endTime - startTime).toNSec() * 1e-6   ;
+
+
+startTime = ros::WallTime::now();
   // mark free cells only if not seen occupied in this cloud
   for(KeySet::iterator it = free_cells.begin(), end=free_cells.end(); it!= end; ++it){
     if (occupied_cells.find(*it) == occupied_cells.end()){
@@ -441,10 +496,18 @@ void OctomapServer::insertScan(const tf::Point& sensorOriginTf, const PCLPointCl
     }
   }
 
+endTime = ros::WallTime::now();
+double updatingFreeCellTime = (endTime - startTime).toNSec() * 1e-6   ;
+
+
+startTime = ros::WallTime::now();
   // now mark all occupied cells:
   for (KeySet::iterator it = occupied_cells.begin(), end=occupied_cells.end(); it!= end; it++) {
     m_octree->updateNode(*it, true);
   }
+
+endTime = ros::WallTime::now();
+double updatingOccupiedCellTime = (endTime - startTime).toNSec() * 1e-6   ;
 
   // TODO: eval lazy+updateInner vs. proper insertion
   // non-lazy by default (updateInnerOccupancy() too slow for large maps)
@@ -464,14 +527,27 @@ void OctomapServer::insertScan(const tf::Point& sensorOriginTf, const PCLPointCl
 //      m_updateBBXMax = tmpMax;
 //   }
 
+startTime = ros::WallTime::now();
   // TODO: we could also limit the bbx to be within the map bounds here (see publishing check)
   minPt = m_octree->keyToCoord(m_updateBBXMin);
   maxPt = m_octree->keyToCoord(m_updateBBXMax);
   ROS_DEBUG_STREAM("Updated area bounding box: "<< minPt << " - "<<maxPt);
   ROS_DEBUG_STREAM("Bounding box keys (after): " << m_updateBBXMin[0] << " " <<m_updateBBXMin[1] << " " << m_updateBBXMin[2] << " / " <<m_updateBBXMax[0] << " "<<m_updateBBXMax[1] << " "<< m_updateBBXMax[2]);
+endTime = ros::WallTime::now();
+double updatingBBTime = (endTime - startTime).toNSec() * 1e-6   ;
 
+ROS_WARN("b4 prune : %d %d %d \n", m_octree->size(), free_cells.size(), occupied_cells.size() );
+
+startTime = ros::WallTime::now();
   if (m_compressMap)
     m_octree->prune();
+endTime = ros::WallTime::now();
+double pruneTime = (endTime - startTime).toNSec() * 1e-6 ;
+
+ROS_WARN("full, free, occupied: %d %d %d \n", m_octree->size(), free_cells.size(), occupied_cells.size() );
+
+m_ofs_inserttime << std::fixed << rayGroundPointTime << " " << rayNongroundPointTime << " " <<
+updatingFreeCellTime << " " << updatingOccupiedCellTime << " " << updatingBBTime << " " << pruneTime << std::endl;
 
 #ifdef COLOR_OCTOMAP_SERVER
   if (colors)
@@ -487,7 +563,6 @@ void OctomapServer::insertScan(const tf::Point& sensorOriginTf, const PCLPointCl
 void OctomapServer::publishAll(const ros::Time& rostime){
   ros::WallTime startTime = ros::WallTime::now();
   size_t octomapSize = m_octree->size();
-  ROS_WARN("octomapsize: %ld \n", octomapSize);
   // TODO: estimate num occ. voxels for size of arrays (reserve)
   if (octomapSize <= 1){
     ROS_WARN("Nothing to publish, octree is empty");
@@ -520,12 +595,17 @@ void OctomapServer::publishAll(const ros::Time& rostime){
   // call pre-traversal hook:
   handlePreNodeTraversal(rostime);
 
+  uint32_t uNumOccuNode = 0;
+  uint32_t uNumFreeNode = 0;
+  uint32_t uNumNode = 0;
   // now, traverse all leafs in the tree:
+ROS_WARN("In PublishAll() octree size: %u \n", octomapSize );
+
   for (OcTreeT::iterator it = m_octree->begin(m_maxTreeDepth),
       end = m_octree->end(); it != end; ++it)
   {
     bool inUpdateBBX = isInUpdateBBX(it);
-
+    uNumNode++ ;
     // call general hook:
     handleNode(it);
     if (inUpdateBBX)
@@ -551,10 +631,9 @@ void OctomapServer::publishAll(const ros::Time& rostime){
           continue;
         } // else: current octree node is no speckle, send it out
 
-        handleOccupiedNode(it);
+        handleOccupiedNode(it); uNumOccuNode++;
         if (inUpdateBBX)
           handleOccupiedNodeInBBX(it);
-
 
         //create marker:
         if (publishMarkerArray){
@@ -602,7 +681,7 @@ void OctomapServer::publishAll(const ros::Time& rostime){
       double half_size = it.getSize() / 2.0;
       if (z + half_size > m_occupancyMinZ && z - half_size < m_occupancyMaxZ)
       {
-        handleFreeNode(it);
+        handleFreeNode(it); uNumFreeNode++;
         if (inUpdateBBX)
           handleFreeNodeInBBX(it);
 
@@ -623,11 +702,11 @@ void OctomapServer::publishAll(const ros::Time& rostime){
             freeNodesVis.markers[idx].points.push_back(cubeCenter);
           }
         }
-
       }
     }
   }
 
+ROS_WARN("PublishAll() tot, free, occu: %u %u %u\n", uNumNode, uNumFreeNode, uNumOccuNode);
   // call post-traversal hook:
   handlePostNodeTraversal(rostime);
 
@@ -988,7 +1067,7 @@ void OctomapServer::handlePreNodeTraversal(const ros::Time& rostime){
     // might not exactly be min / max of octree:
     octomap::point3d origin = m_octree->keyToCoord(m_paddedMinKey, m_treeDepth);
     double gridRes = m_octree->getNodeSize(m_maxTreeDepth);
-    m_projectCompleteMap = (!m_incrementalUpdate || (std::abs(gridRes-m_gridmap.info.resolution) > 1e-6));
+    m_projectCompleteMap = (!m_incrementalUpdate || (std::abs(gridRes-m_gridmap.info.resolution) > 1e-6)); // is TRUE
     m_gridmap.info.resolution = gridRes;
     m_gridmap.info.origin.position.x = origin.x() - gridRes*0.5;
     m_gridmap.info.origin.position.y = origin.y() - gridRes*0.5;
@@ -1051,7 +1130,6 @@ void OctomapServer::handlePostNodeTraversal(const ros::Time& rostime){
   {
     m_mapPub.publish(m_gridmap);
 
-//    std::ofstream outfile("/home/hankm/catkin_ws/src/gridmap_2d/images/gridmap.txt");
     uint32_t u = 0;
 	uint32_t f = 0;
 	uint32_t o = 0;
@@ -1068,9 +1146,7 @@ void OctomapServer::handlePostNodeTraversal(const ros::Time& rostime){
         ++mapDataIter;
       }
     }
-
     ROS_WARN("u, f, o: %u %u %u \n", u, f, o);
-
 
     // kmHan
     m_oGridMap2D.setMap( m_pgridmap, m_sensorToWorld );
@@ -1081,7 +1157,6 @@ void OctomapServer::handlePostNodeTraversal(const ros::Time& rostime){
     //img_bridge = cv_bridge::CvImage(header, sensor_msgs::image_encodings::TYPE_8UC1, m_oGridMap2D.binaryMapUnknownPadded() );
     img_bridge.toImageMsg(img_msg);
     m_mapImagePub.publish( img_msg ); //kmHan
-
   }
 }
 
@@ -1094,7 +1169,7 @@ void OctomapServer::handleOccupiedNode(const OcTreeT::iterator& it){
 
 void OctomapServer::handleFreeNode(const OcTreeT::iterator& it){
 
-  if (m_publish2DMap && m_projectCompleteMap){
+  if (m_publish2DMap && m_projectCompleteMap){ // true && true
     update2DMap(it, false);
   }
 }
@@ -1116,19 +1191,14 @@ void OctomapServer::handleFreeNodeInBBX(const OcTreeT::iterator& it){
 void OctomapServer::update2DMap(const OcTreeT::iterator& it, bool occupied){
 
   // update 2D map (occupied always overrides):
-  float y =	it->getLogOdds() ;
-  float p = exp(y)/(1-exp(y)) ;
-  int8_t val = 100; //(int8_t)(127 * (it->getOccupancy()) ) ; // int8 0 ~ 127
-
-//  ROS_WARN("value: %d occupancy %f ",  val, it->getOccupancy() );
-//  assert(val > 0 && val <= 127);
 
   if (it.getDepth() == m_maxTreeDepth){
     unsigned idx = mapIdx(it.getKey());
     if (occupied)
-      m_gridmap.data[mapIdx(it.getKey())] = 0; //val;
-    else if (m_gridmap.data[idx] == -1){ // unknown case
-      m_gridmap.data[idx] = 100;			 // set it as a free node
+      m_gridmap.data[idx] = 100;
+    else if (m_gridmap.data[idx] == -1)
+    {
+      m_gridmap.data[idx] = 0;
     }
 
   } else{
@@ -1139,13 +1209,16 @@ void OctomapServer::update2DMap(const OcTreeT::iterator& it, bool occupied){
       for(int dy=0; dy < intSize; dy++){
         unsigned idx = mapIdx(i, (minKey[1]+dy - m_paddedMinKey[1])/m_multires2DScale);
         if (occupied)
-          m_gridmap.data[idx] = 0; //val; // 100
-        else if (m_gridmap.data[idx] == -1){
-          m_gridmap.data[idx] = 100; //0
+          m_gridmap.data[idx] = 100;
+        else if (m_gridmap.data[idx] == -1)
+        {
+          m_gridmap.data[idx] = 0;
         }
       }
     }
   }
+
+
 }
 
 
@@ -1311,13 +1384,12 @@ std_msgs::ColorRGBA OctomapServer::heightMapColor(double h) {
       color.r = v; color.g = m; color.b = n;
       break;
     default:
-      color.r = 1; color.g = 0.5; color.b = 0.5;
+ 
+     color.r = 1; color.g = 0.5; color.b = 0.5;
       break;
   }
 
   return color;
 }
 }
-
-
 

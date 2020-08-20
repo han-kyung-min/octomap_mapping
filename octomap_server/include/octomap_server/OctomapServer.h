@@ -275,6 +275,9 @@ protected:
   cv_bridge::CvImagePtr m_cb_ptr ;
   Eigen::Matrix4f m_sensorToWorld;
 
+  std::ofstream m_ofs_servertime;
+  std::ofstream m_ofs_inserttime;
+
 public:
   std::mutex m_mtxSensorToWorld;
 };

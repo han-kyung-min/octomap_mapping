@@ -7,7 +7,10 @@
   www.ros.org/wiki/octomap_server for details  
 -->
 <launch>
+    <arg name="use_sim_time"                value="true"/> <!--by kmHan-->
+    <param name="use_sim_time" value="$(arg use_sim_time)"/> <!--by kmHan-->
 	<node pkg="octomap_server" type="octomap_server_node" name="octomap_server">
+	
 		<param name="resolution" value="0.05" />
 		
 		<!-- fixed map frame (set to 'map' if SLAM or localization running!) -->

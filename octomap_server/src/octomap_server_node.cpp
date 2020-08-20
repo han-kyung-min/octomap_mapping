@@ -50,6 +50,7 @@ int main(int argc, char** argv){
   const ros::NodeHandle private_nh("~");
   std::string mapFilename(""), mapFilenameParam("");
 
+  ros::WallTime start_, end_;
   if (argc > 2 || (argc == 2 && std::string(argv[1]) == "-h")){
     ROS_ERROR("%s", USAGE);
     exit(-1);
@@ -79,7 +80,11 @@ int main(int argc, char** argv){
   }
 
   try{
+//	start_ = ros::WallTime::now();
     ros::spin();
+//    end_ = ros::WallTime::now();
+//    double execution_time = (end_ - start_).toNSec() * 1e-6;
+//    ROS_INFO_STREAM("Exectution time (ms): " << execution_time);
   }catch(std::runtime_error& e){
     ROS_ERROR("octomap_server exception: %s", e.what());
     return -1;
