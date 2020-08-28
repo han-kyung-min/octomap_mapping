@@ -140,7 +140,9 @@ protected:
   void reconfigureCallback(octomap_server::OctomapServerConfig& config, uint32_t level);
   void publishBinaryOctoMap(const ros::Time& rostime = ros::Time::now()) const;
   void publishFullOctoMap(const ros::Time& rostime = ros::Time::now()) const;
-  virtual void publishAll(const ros::Time& rostime = ros::Time::now());
+//  virtual void publishAll(const ros::Time& rostime = ros::Time::now());
+  void publishAll(const ros::Time& rostime = ros::Time::now());
+  void publishAll(const ros::Time& rostime, octomap::KeySet& free_cells, octomap::KeySet& occupied_cells  );
 
   /**
   * @brief update occupancy map with a scan labeled as ground and nonground.
@@ -150,7 +152,12 @@ protected:
   * @param ground scan endpoints on the ground plane (only clear space)
   * @param nonground all other endpoints (clear up to occupied endpoint)
   */
-  virtual void insertScan(const tf::Point& sensorOrigin, const PCLPointCloud& ground, const PCLPointCloud& nonground);
+//  virtual void insertScan(const tf::Point& sensorOrigin, const PCLPointCloud& ground, const PCLPointCloud& nonground)
+
+  void insertScan(const tf::Point& sensorOrigin, const PCLPointCloud& ground, const PCLPointCloud& nonground);
+  void insertScan(const tf::Point& sensorOrigin, const PCLPointCloud& ground, const PCLPointCloud& nonground
+			,octomap::KeySet& free_cells, octomap::KeySet& occupied_cells);
+
 
   /// label the input cloud "pc" into ground and nonground. Should be in the robot's fixed frame (not world!)
   void filterGroundPlane(const PCLPointCloud& pc, PCLPointCloud& ground, PCLPointCloud& nonground) const;
