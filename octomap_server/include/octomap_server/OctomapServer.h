@@ -52,7 +52,10 @@
 
 #include <pcl/point_types.h>
 #include <pcl/conversions.h>
+
 #include <pcl_ros/transforms.h>
+#include <pcl_ros/filters/voxel_grid.h>
+
 #include <pcl/sample_consensus/method_types.h>
 #include <pcl/sample_consensus/model_types.h>
 #include <pcl/segmentation/sac_segmentation.h>
@@ -73,6 +76,10 @@
 #include <octomap_ros/conversions.h>
 #include <octomap/octomap.h>
 #include <octomap/OcTreeKey.h>
+
+#include <opencv2/core/core.hpp>
+#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
 
 //#define COLOR_OCTOMAP_SERVER // switch color here - easier maintenance, only maintain OctomapServer. Two targets are defined in the cmake, octomap_server_color and octomap_server. One has this defined, and the other doesn't
 
@@ -277,6 +284,7 @@ protected:
 
   std::ofstream m_ofs_servertime;
   std::ofstream m_ofs_inserttime;
+  std::ofstream m_ofs_publishtime;
 
 public:
   std::mutex m_mtxSensorToWorld;
