@@ -11,7 +11,7 @@
     <param name="use_sim_time" value="$(arg use_sim_time)"/> <!--by kmHan-->
 	<node pkg="octomap_server" type="octomap_server_node" name="octomap_server">
 
-        <!--param name="incremental_2D_projection" value="true" /-->
+        <param name="incremental_2D_projection" value="true" />
 	
         <param name="max_depth" value="16" />
 			

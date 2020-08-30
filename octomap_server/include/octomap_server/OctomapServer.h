@@ -143,6 +143,7 @@ protected:
 //  virtual void publishAll(const ros::Time& rostime = ros::Time::now());
   void publishAll(const ros::Time& rostime = ros::Time::now());
   void publishAll(const ros::Time& rostime, octomap::KeySet& free_cells, octomap::KeySet& occupied_cells  );
+  void publishOctomap(const ros::Time& rostime, octomap::KeySet& free_cells, octomap::KeySet& occupied_cells  );
 
   /**
   * @brief update occupancy map with a scan labeled as ground and nonground.
@@ -195,6 +196,7 @@ protected:
 
   /// updates the downprojected 2D map as either occupied or free
   virtual void update2DMap(const OcTreeT::iterator& it, bool occupied);
+  virtual void update2DGrid(const octomap::OcTreeKey& it_, bool occupied);
 
   inline unsigned mapIdx(int i, int j) const {
     return m_gridmap.info.width * j + i;
