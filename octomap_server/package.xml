@@ -35,6 +35,12 @@
   <build_depend>gridmap_2d</build_depend>
   <build_depend>cv_bridge</build_depend>
 
+  <build_depend>message_generation</build_depend>   <!-- by kmHan -->
+  <!--run_depend>message_generation</run_depend -->   <!-- by kmHan -->
+  
+  <run_depend>message_runtime</run_depend>          <!-- by kmHan -->
+  
+  
  <run_depend>roscpp</run_depend>
  <run_depend>visualization_msgs</run_depend>
  <run_depend>sensor_msgs</run_depend>

@@ -21,7 +21,22 @@ set(PACKAGE_DEPENDENCIES
 
 find_package(catkin REQUIRED COMPONENTS ${PACKAGE_DEPENDENCIES})
 
+find_package(message_generation) #kmHan
+
 find_package(octomap REQUIRED)
+
+add_message_files(  #kmHan
+    FILES
+    mapframedata.msg
+)
+
+generate_messages(  #kmHan
+    DEPENDENCIES
+    std_msgs
+    sensor_msgs
+)
+
+
 add_definitions(-DOCTOMAP_NODEBUGOUT)
 
 include_directories(
@@ -32,10 +47,11 @@ include_directories(
 
 generate_dynamic_reconfigure_options(cfg/OctomapServer.cfg)
 
+
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES ${PROJECT_NAME}
-  CATKIN_DEPENDS ${PACKAGE_DEPENDENCIES}
+  CATKIN_DEPENDS ${PACKAGE_DEPENDENCIES}   message_runtime       # kmHan
   DEPENDS OCTOMAP
 )
 

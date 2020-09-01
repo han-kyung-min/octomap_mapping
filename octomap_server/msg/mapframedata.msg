@@ -1,0 +1,2 @@
+int32 nCellChanges
+sensor_msgs/Image image_map_2d

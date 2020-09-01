@@ -173,7 +173,9 @@ ROS_WARN("res: %f", m_res);
   m_pointCloudPub = m_nh.advertise<sensor_msgs::PointCloud2>("octomap_point_cloud_centers", 1, m_latchedTopics);
   m_mapPub = m_nh.advertise<nav_msgs::OccupancyGrid>("projected_map", 5, m_latchedTopics);
   m_fmarkerPub = m_nh.advertise<visualization_msgs::MarkerArray>("free_cells_vis_array", 1, m_latchedTopics);
-  m_mapImagePub = m_nh.advertise<sensor_msgs::Image>("image_map_2d", 5, m_latchedTopics);
+  //m_mapImagePub = m_nh.advertise<sensor_msgs::Image>("image_map_2d", 5, m_latchedTopics);
+
+  m_mapframedataPub = m_nh.advertise<octomap_server::mapframedata>("mapframe_data", 1, m_latchedTopics); // kmHan
 
   m_pointCloudSub = new message_filters::Subscriber<sensor_msgs::PointCloud2> (m_nh, "cloud_in", 5);
   m_tfPointCloudSub = new tf::MessageFilter<sensor_msgs::PointCloud2> (*m_pointCloudSub, m_tfListener, m_worldFrameId, 5);
@@ -684,8 +686,6 @@ const float minz_thr = 0.9;
         } else{
           ROS_ERROR_STREAM("Could not generate Key for endpoint "<<new_end);
         }
-
-
       }
     }
   }
@@ -1406,25 +1406,8 @@ void OctomapServer::publishOctomap(const ros::Time& rostime, KeySet& free_cells,
 ros::WallTime startTime, endTime;
 startTime = ros::WallTime::now();
 
-  bool publishFreeMarkerArray = m_publishFreeSpace && (m_latchedTopics || m_fmarkerPub.getNumSubscribers() > 0);
-  bool publishMarkerArray = (m_latchedTopics || m_markerPub.getNumSubscribers() > 0);
-  bool publishPointCloud = (m_latchedTopics || m_pointCloudPub.getNumSubscribers() > 0);
-  bool publishBinaryMap = (m_latchedTopics || m_binaryMapPub.getNumSubscribers() > 0);
-  bool publishFullMap = (m_latchedTopics || m_fullMapPub.getNumSubscribers() > 0);
-  m_publish2DMap = (m_latchedTopics || m_mapPub.getNumSubscribers() > 0);
-
-  // init markers for free space:
-  visualization_msgs::MarkerArray freeNodesVis;
-  // each array stores all cubes of a different size, one for each depth level:
-  freeNodesVis.markers.resize(m_treeDepth+1);
-
   geometry_msgs::Pose pose;
   pose.orientation = tf::createQuaternionMsgFromYaw(0.0);
-
-  // init markers:
-  visualization_msgs::MarkerArray occupiedNodesVis;
-  // each array stores all cubes of a different size, one for each depth level:
-  occupiedNodesVis.markers.resize(m_treeDepth+1);
 
   // init pointcloud:
   pcl::PointCloud<PCLPoint> pclCloud;
@@ -1449,22 +1432,10 @@ startTime = ros::WallTime::now();
   // this is the major bottleneck causes the runtime issue.
   // It would be better that we somehow identify which node to update, then update them only.
 
-ROS_WARN("In PublishAll() octree size: %u \n", octomapSize );
-
-//for(KeySet::iterator it = free_cells.begin(), end=free_cells.end(); it!= end; ++it)
-//{
-//  if (occupied_cells.find(*it) == occupied_cells.end()){
-//	m_octree->updateNode(*it, false);
-//  }
-//}
 ROS_WARN("free cell size: %d \n", free_cells.size() );
 
 	float toCell = (1.f/m_gridmap.info.resolution) ;
 
-//  for (OcTreeT::iterator it = m_octree->begin(m_maxTreeDepth),
-//      end = m_octree->end(); it != end; ++it) // leaf iteration w/o visiting inner node
-//  {
-	//cv::Mat img = cv::Mat::zeros(628, 566, CV_8UC1) ;
 	for (KeySet::iterator it = free_cells.begin(), end=free_cells.end(); it!= end; it++)
 	{
 		point3d pt = m_octree->keyToCoord(*it);
@@ -1484,12 +1455,16 @@ ROS_WARN("free cell size: %d \n", free_cells.size() );
 		if( m_octree->isNodeOccupied(*Node) )
 			m_oGridMap2D.SetGridMap(pt.y(), pt.x(), m_res, m_sensorToWorld, 255);
 	}
+	m_oGridMap2D.updatePrevCellChanges();
 
 //	cv::namedWindow("tmp", 1);
 //	//cv::imshow("tmp", img);
 //	cv::imshow("tmp", m_oGridMap2D.binaryMapUnknownPaddedFlip() );
 //	cv::waitKey(10);
 
+// publish # of cell changes
+	uint32_t uNumCellChanges = m_oGridMap2D.GetTotCellChangesAtCurrStep();
+	//m_gridmapChangesPub.publish( uNumCellChanges ) ;
 
 
 endTime = ros::WallTime::now();
@@ -1505,38 +1480,14 @@ double postNodeTraversalTime = (endTime - startTime).toNSec() * 1e-6   ;
 
 startTime = ros::WallTime::now();
   // finish MarkerArray:
-  if (publishMarkerArray)
-  {
-    for (unsigned i= 0; i < occupiedNodesVis.markers.size(); ++i){
-      double size = m_octree->getNodeSize(i);
-
-      occupiedNodesVis.markers[i].header.frame_id = m_worldFrameId;
-      occupiedNodesVis.markers[i].header.stamp = rostime;
-      occupiedNodesVis.markers[i].ns = "map";
-      occupiedNodesVis.markers[i].id = i;
-      occupiedNodesVis.markers[i].type = visualization_msgs::Marker::CUBE_LIST;
-      occupiedNodesVis.markers[i].scale.x = size;
-      occupiedNodesVis.markers[i].scale.y = size;
-      occupiedNodesVis.markers[i].scale.z = size;
-      if (!m_useColoredMap)
-        occupiedNodesVis.markers[i].color = m_color;
-
-      if (occupiedNodesVis.markers[i].points.size() > 0)
-        occupiedNodesVis.markers[i].action = visualization_msgs::Marker::ADD;
-      else
-        occupiedNodesVis.markers[i].action = visualization_msgs::Marker::DELETE;
-    }
-
-    m_markerPub.publish(occupiedNodesVis);
-  }
-
 
 endTime = ros::WallTime::now();
 double markerArrayTime = (endTime - startTime).toNSec() * 1e-6   ;
 
 startTime = ros::WallTime::now();
   // finish pointcloud:
-  if (publishPointCloud){
+  //if (publishPointCloud)
+  {
     sensor_msgs::PointCloud2 cloud;
     pcl::toROSMsg (pclCloud, cloud);
     cloud.header.frame_id = m_worldFrameId;
@@ -1544,11 +1495,11 @@ startTime = ros::WallTime::now();
     m_pointCloudPub.publish(cloud);
   }
 
-  if (publishBinaryMap)
-    publishBinaryOctoMap(rostime);
-
-  if (publishFullMap)
-    publishFullOctoMap(rostime);
+//  if (publishBinaryMap)
+//    publishBinaryOctoMap(rostime);
+//
+//  if (publishFullMap)
+//    publishFullOctoMap(rostime);
 
 endTime = ros::WallTime::now();
 double publishOctomapTime = (endTime - startTime).toNSec() * 1e-6   ;
@@ -1919,7 +1870,15 @@ void OctomapServer::handlePostNodeTraversal(const ros::Time& rostime){
     img_bridge = cv_bridge::CvImage(header, sensor_msgs::image_encodings::MONO8, m_oGridMap2D.binaryMapUnknownPaddedFlip() );
 //    img_bridge = cv_bridge::CvImage(header, sensor_msgs::image_encodings::TYPE_8UC1, m_oGridMap2D.binaryMapUnknownPadded() );
     img_bridge.toImageMsg(img_msg);
-    m_mapImagePub.publish( img_msg ); //kmHan
+
+    octomap_server::mapframedata mapframe_data ;
+    mapframe_data.nCellChanges = m_oGridMap.GetTotCellChangesAtCurrStep();
+    mapframe_data.image_map_2d = img_msg ;
+
+    m_mapframedataPub.publish(mapframe_data);
+    //m_mapImagePub.publish( img_msg ); //kmHan
+
+    //cv::imwrite("/home/hankm/catkin_ws/src/gridmap_2d/images/gridmap.png",m_oGridMap2D.binaryMapUnknownPaddedFlip());
 
   }
 }

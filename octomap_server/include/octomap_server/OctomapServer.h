@@ -42,6 +42,7 @@
 #include <tf/transform_listener.h>
 #include <sensor_msgs/Image.h>
 //#include <sensor_msgs/Image_encodings.h>
+#include <octomap_server/mapframedata.h>
 
 // #include <moveit_msgs/CollisionObject.h>
 // #include <moveit_msgs/CollisionMap.h>
@@ -228,6 +229,8 @@ protected:
   ros::NodeHandle m_nh_private;
   ros::Publisher  m_markerPub, m_binaryMapPub, m_fullMapPub, m_pointCloudPub, m_collisionObjectPub, m_mapPub, m_cmapPub, m_fmapPub, m_fmarkerPub;
   ros::Publisher  m_mapImagePub; // by kmHan
+  ros::Publisher  m_mapframedataPub; // by kmHan
+
   message_filters::Subscriber<sensor_msgs::PointCloud2>* m_pointCloudSub;
   tf::MessageFilter<sensor_msgs::PointCloud2>* m_tfPointCloudSub;
   ros::ServiceServer m_octomapBinaryService, m_octomapFullService, m_clearBBXService, m_resetService;
