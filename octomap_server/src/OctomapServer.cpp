@@ -405,7 +405,7 @@ void OctomapServer::insertCloudCallback(const sensor_msgs::PointCloud2::ConstPtr
 //startTime = ros::WallTime::now();
   //publishAll(cloud->header.stamp, free_cells, occupied_cells);
 
-  publishOctomap( cloud->header.stamp, free_cells, occupied_cells );
+  publishOctomap( cloud->header.stamp, sensorToWorld, free_cells, occupied_cells );
 
   free_cells.clear();
   occupied_cells.clear();
@@ -466,8 +466,8 @@ double rayGroundPointTime = (endTime - startTime).toNSec() * 1e-6   ;
 
 startTime = ros::WallTime::now();
   // all other points: free on ray, occupied on endpoint:
-const float maxz_thr = 1.1;
-const float minz_thr = 0.9;
+const float maxz_thr = 1.05;
+const float minz_thr = 0.95;
   for (PCLPointCloud::const_iterator it = nonground.begin(); it != nonground.end(); ++it){
 	if(it->z > maxz_thr || it->z < minz_thr)
 		continue;
@@ -507,8 +507,6 @@ const float minz_thr = 0.9;
         } else{
           ROS_ERROR_STREAM("Could not generate Key for endpoint "<<new_end);
         }
-
-
       }
     }
   }
@@ -519,7 +517,6 @@ const float minz_thr = 0.9;
 
 endTime = ros::WallTime::now();
 double rayNongroundPointTime = (endTime - startTime).toNSec() * 1e-6   ;
-
 
 startTime = ros::WallTime::now();
   // mark free cells only if not seen occupied in this cloud
@@ -572,7 +569,7 @@ startTime = ros::WallTime::now();
 endTime = ros::WallTime::now();
 double updatingBBTime = (endTime - startTime).toNSec() * 1e-6   ;
 
-ROS_WARN("b4 prune : %d %d %d \n", m_octree->size(), free_cells.size(), occupied_cells.size() );
+//ROS_WARN("b4 prune : %d %d %d \n", m_octree->size(), free_cells.size(), occupied_cells.size() );
 
 startTime = ros::WallTime::now();
   if (m_compressMap)
@@ -580,7 +577,7 @@ startTime = ros::WallTime::now();
 endTime = ros::WallTime::now();
 double pruneTime = (endTime - startTime).toNSec() * 1e-6 ;
 
-ROS_WARN("inserScan() full, free, occupied: %d %d %d \n", m_octree->size(), free_cells.size(), occupied_cells.size() );
+//ROS_WARN("inserScan() full, free, occupied: %d %d %d \n", m_octree->size(), free_cells.size(), occupied_cells.size() );
 
 m_ofs_inserttime<< std::fixed << std::setprecision(4) << std::setw(9)
 				<< rayGroundPointTime << " " << rayNongroundPointTime << " "
@@ -776,7 +773,7 @@ startTime = ros::WallTime::now();
 endTime = ros::WallTime::now();
 double updatingBBTime = (endTime - startTime).toNSec() * 1e-6   ;
 
-ROS_WARN("b4 prune : %d %d %d \n", m_octree->size(), free_cells.size(), occupied_cells.size() );
+//ROS_WARN("b4 prune : %d %d %d \n", m_octree->size(), free_cells.size(), occupied_cells.size() );
 
 startTime = ros::WallTime::now();
 
@@ -786,7 +783,7 @@ startTime = ros::WallTime::now();
 endTime = ros::WallTime::now();
 double pruneTime = (endTime - startTime).toNSec() * 1e-6 ;
 
-ROS_WARN("inserScan() full, free, occupied: %d %d %d \n", m_octree->size(), free_cells.size(), occupied_cells.size() );
+//ROS_WARN("inserScan() full, free, occupied: %d %d %d \n", m_octree->size(), free_cells.size(), occupied_cells.size() );
 
 m_ofs_inserttime<< std::fixed << std::setprecision(4) << std::setw(9)
 				<< rayGroundPointTime << " " << rayNongroundPointTime << " "
@@ -1136,7 +1133,8 @@ ROS_WARN("In PublishAll() octree size: %u \n", octomapSize );
 //	m_octree->updateNode(*it, false);
 //  }
 //}
-ROS_WARN("free cell size: %d \n", free_cells.size() );
+
+//ROS_WARN("free cell size: %d \n", free_cells.size() );
 
 	float toCell = (1.f/m_gridmap.info.resolution) ;
 
@@ -1393,9 +1391,10 @@ m_ofs_publishtime << std::fixed << std::setprecision(4) << std::setw(9)
 }
 
 
-void OctomapServer::publishOctomap(const ros::Time& rostime, KeySet& free_cells, KeySet& occupied_cells)
+void OctomapServer::publishOctomap(const ros::Time& rostime, const Eigen::Matrix4f sensorToWorld, KeySet& free_cells, KeySet& occupied_cells)
 {
 
+  //point3d sensorOrigin = pointTfToOctomap(sensorOriginTf);
   size_t octomapSize = m_octree->size();
   // TODO: estimate num occ. voxels for size of arrays (reserve)
   if (octomapSize <= 1){
@@ -1455,17 +1454,21 @@ ROS_WARN("free cell size: %d \n", free_cells.size() );
 		if( m_octree->isNodeOccupied(*Node) )
 			m_oGridMap2D.SetGridMap(pt.y(), pt.x(), m_res, m_sensorToWorld, 255);
 	}
-	m_oGridMap2D.updatePrevCellChanges();
 
-//	cv::namedWindow("tmp", 1);
-//	//cv::imshow("tmp", img);
-//	cv::imshow("tmp", m_oGridMap2D.binaryMapUnknownPaddedFlip() );
-//	cv::waitKey(10);
+// set robot pose
+	m_oGridMap2D.SetRobot( sensorToWorld, m_res );
 
 // publish # of cell changes
-	uint32_t uNumCellChanges = m_oGridMap2D.GetTotCellChangesAtCurrStep();
+	int32_t nNumCellChanges = m_oGridMap2D.GetTotCellChangesAtCurrStep();
 	//m_gridmapChangesPub.publish( uNumCellChanges ) ;
+	ROS_ERROR("# changes %d \n", nNumCellChanges);
 
+
+cv::namedWindow("tmp", 1);
+cv::imshow("tmp", m_oGridMap2D.binaryMapUnknownPaddedFlip());
+cv::waitKey(10);
+
+//assert(0);
 
 endTime = ros::WallTime::now();
 double gridmapUpdateTime = (endTime - startTime).toNSec() * 1e-6   ;
@@ -1475,6 +1478,8 @@ ROS_WARN("PublishAll() tot, free, occu: %u %u %u\n", uNumNode, uNumFreeNode, uNu
 
 startTime = ros::WallTime::now();
   handlePostNodeTraversal(rostime);
+  m_oGridMap2D.updatePrevCellChanges();
+
 endTime = ros::WallTime::now();
 double postNodeTraversalTime = (endTime - startTime).toNSec() * 1e-6   ;
 
@@ -1864,17 +1869,19 @@ void OctomapServer::handlePostNodeTraversal(const ros::Time& rostime){
     // kmHan
 //    m_oGridMap2D.setMap( m_gridmap, m_sensorToWorld, false );
 
+    octomap_server::mapframedata mapframe_data ;
     sensor_msgs::Image img_msg;
     std_msgs::Header header;
     cv_bridge::CvImage img_bridge;
     img_bridge = cv_bridge::CvImage(header, sensor_msgs::image_encodings::MONO8, m_oGridMap2D.binaryMapUnknownPaddedFlip() );
 //    img_bridge = cv_bridge::CvImage(header, sensor_msgs::image_encodings::TYPE_8UC1, m_oGridMap2D.binaryMapUnknownPadded() );
     img_bridge.toImageMsg(img_msg);
+    img_bridge.toImageMsg(mapframe_data.image_map_2d);
 
-    octomap_server::mapframedata mapframe_data ;
-    mapframe_data.nCellChanges = m_oGridMap.GetTotCellChangesAtCurrStep();
-    mapframe_data.image_map_2d = img_msg ;
+    mapframe_data.nCellChanges = m_oGridMap2D.GetTotCellChangesAtCurrStep();
 
+    ROS_WARN("been here \n");
+    ROS_ERROR("# cell changes: %d \n", m_oGridMap2D.GetTotCellChangesAtCurrStep());
     m_mapframedataPub.publish(mapframe_data);
     //m_mapImagePub.publish( img_msg ); //kmHan
 

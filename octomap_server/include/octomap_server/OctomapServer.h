@@ -144,7 +144,7 @@ protected:
 //  virtual void publishAll(const ros::Time& rostime = ros::Time::now());
   void publishAll(const ros::Time& rostime = ros::Time::now());
   void publishAll(const ros::Time& rostime, octomap::KeySet& free_cells, octomap::KeySet& occupied_cells  );
-  void publishOctomap(const ros::Time& rostime, octomap::KeySet& free_cells, octomap::KeySet& occupied_cells  );
+  void publishOctomap(const ros::Time& rostime, const Eigen::Matrix4f sensorToWorld, octomap::KeySet& free_cells, octomap::KeySet& occupied_cells  );
 
   /**
   * @brief update occupancy map with a scan labeled as ground and nonground.
