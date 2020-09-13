@@ -1,2 +1,3 @@
-int32 nCellChanges
+int32 nCoverageUpdate
+int32 nTotCoverage
 sensor_msgs/Image image_map_2d

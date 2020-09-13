@@ -1459,14 +1459,14 @@ ROS_WARN("free cell size: %d \n", free_cells.size() );
 	m_oGridMap2D.SetRobot( sensorToWorld, m_res );
 
 // publish # of cell changes
-	int32_t nNumCellChanges = m_oGridMap2D.GetTotCellChangesAtCurrStep();
-	//m_gridmapChangesPub.publish( uNumCellChanges ) ;
-	ROS_ERROR("# changes %d \n", nNumCellChanges);
+	int32_t nNumCellCoverage = m_oGridMap2D.GetNumCellCoverageAtCurrStep();
+	//m_gridmapChangesPub.publish( nNumCellCoverage ) ;
+	ROS_ERROR("# cell coverages %d \n", nNumCellCoverage);
 
 
-cv::namedWindow("tmp", 1);
-cv::imshow("tmp", m_oGridMap2D.binaryMapUnknownPaddedFlip());
-cv::waitKey(10);
+//cv::namedWindow("tmp", 1);
+//cv::imshow("tmp", m_oGridMap2D.binaryMapUnknownPaddedFlip());
+//cv::waitKey(10);
 
 //assert(0);
 
@@ -1478,7 +1478,7 @@ ROS_WARN("PublishAll() tot, free, occu: %u %u %u\n", uNumNode, uNumFreeNode, uNu
 
 startTime = ros::WallTime::now();
   handlePostNodeTraversal(rostime);
-  m_oGridMap2D.updatePrevCellChanges();
+  m_oGridMap2D.updatePrevCellCoverage();
 
 endTime = ros::WallTime::now();
 double postNodeTraversalTime = (endTime - startTime).toNSec() * 1e-6   ;
@@ -1612,6 +1612,7 @@ bool OctomapServer::resetSrv(std_srvs::Empty::Request& req, std_srvs::Empty::Res
   }
   m_fmarkerPub.publish(freeNodesVis);
 
+  m_oGridMap2D.reset();
   return true;
 }
 
@@ -1838,8 +1839,10 @@ void OctomapServer::handlePreNodeTraversal(const ros::Time& rostime){
        size_t mapUpdateBBXMaxX = std::min(int(m_gridmap.info.width-1), (int(m_updateBBXMax[0]) - int(m_paddedMinKey[0]))/int(m_multires2DScale));
        size_t mapUpdateBBXMaxY = std::min(int(m_gridmap.info.height-1), (int(m_updateBBXMax[1]) - int(m_paddedMinKey[1]))/int(m_multires2DScale));
 
-       assert(mapUpdateBBXMaxX > mapUpdateBBXMinX);
-       assert(mapUpdateBBXMaxY > mapUpdateBBXMinY);
+   // Not sure what are we doing with the two lines below... but octomap crashes owing to the two lines below sometimes...
+   //
+       //assert(mapUpdateBBXMaxX > mapUpdateBBXMinX); // by kmHan
+       //assert(mapUpdateBBXMaxY > mapUpdateBBXMinY);
 
        size_t numCols = mapUpdateBBXMaxX-mapUpdateBBXMinX +1;
 
@@ -1878,10 +1881,11 @@ void OctomapServer::handlePostNodeTraversal(const ros::Time& rostime){
     img_bridge.toImageMsg(img_msg);
     img_bridge.toImageMsg(mapframe_data.image_map_2d);
 
-    mapframe_data.nCellChanges = m_oGridMap2D.GetTotCellChangesAtCurrStep();
+    mapframe_data.nCoverageUpdate = m_oGridMap2D.GetNumCellCoverageAtCurrStep();
+    mapframe_data.nTotCoverage = m_oGridMap2D.GetTotCellCoverage() ;
 
-    ROS_WARN("been here \n");
-    ROS_ERROR("# cell changes: %d \n", m_oGridMap2D.GetTotCellChangesAtCurrStep());
+//ROS_WARN("been here \n");
+    ROS_ERROR("# step coverage, totcell coverage: %d  %d\n", m_oGridMap2D.GetNumCellCoverageAtCurrStep(), m_oGridMap2D.GetTotCellCoverage());
     m_mapframedataPub.publish(mapframe_data);
     //m_mapImagePub.publish( img_msg ); //kmHan
 
