@@ -1419,6 +1419,7 @@ startTime = ros::WallTime::now();
   // 1) resize gridmap, then 2) cpy olddata to the resized gridmap 3) put unknowns (-1) to the expanded region
   handlePreNodeTraversal(rostime);
 
+
 endTime = ros::WallTime::now();
 double preNodeTraversalTime = (endTime - startTime).toNSec() * 1e-6   ;
 
@@ -1752,23 +1753,29 @@ void OctomapServer::filterGroundPlane(const PCLPointCloud& pc, PCLPointCloud& gr
 }
 
 void OctomapServer::handlePreNodeTraversal(const ros::Time& rostime){
-  if (m_publish2DMap){
+  if (m_publish2DMap)
+  {
+//ROS_WARN("in pre 0 \n");
     // init projected 2D map:
     m_gridmap.header.frame_id = m_worldFrameId;
     m_gridmap.header.stamp = rostime;
     nav_msgs::MapMetaData oldMapInfo = m_gridmap.info;
 
+//ROS_WARN("in pre 1 \n");
     // TODO: move most of this stuff into c'tor and init map only once (adjust if size changes)
     double minX, minY, minZ, maxX, maxY, maxZ;
     m_octree->getMetricMin(minX, minY, minZ);
     m_octree->getMetricMax(maxX, maxY, maxZ);
 
+//ROS_WARN("in pre 2 \n");
     octomap::point3d minPt(minX, minY, minZ);
     octomap::point3d maxPt(maxX, maxY, maxZ);
     octomap::OcTreeKey minKey = m_octree->coordToKey(minPt, m_maxTreeDepth);
     octomap::OcTreeKey maxKey = m_octree->coordToKey(maxPt, m_maxTreeDepth);
 
     ROS_DEBUG("MinKey: %d %d %d / MaxKey: %d %d %d", minKey[0], minKey[1], minKey[2], maxKey[0], maxKey[1], maxKey[2]);
+
+//ROS_WARN("in pre 3 \n");
 
     // add padding if requested (= new min/maxPts in x&y):
     double halfPaddedX = 0.5*m_minSizeX;
@@ -1780,6 +1787,7 @@ void OctomapServer::handlePreNodeTraversal(const ros::Time& rostime){
     minPt = octomap::point3d(minX, minY, minZ);
     maxPt = octomap::point3d(maxX, maxY, maxZ);
 
+//ROS_WARN("in pre 4 \n");
     OcTreeKey paddedMaxKey;
     if (!m_octree->coordToKeyChecked(minPt, m_maxTreeDepth, m_paddedMinKey)){
       ROS_ERROR("Could not create padded min OcTree key at %f %f %f", minPt.x(), minPt.y(), minPt.z());
@@ -1797,10 +1805,13 @@ void OctomapServer::handlePreNodeTraversal(const ros::Time& rostime){
     m_gridmap.info.width = (paddedMaxKey[0] - m_paddedMinKey[0])/m_multires2DScale +1;
     m_gridmap.info.height = (paddedMaxKey[1] - m_paddedMinKey[1])/m_multires2DScale +1;
 
+//ROS_WARN("in pre 5 \n");
+
     int mapOriginX = minKey[0] - m_paddedMinKey[0];
     int mapOriginY = minKey[1] - m_paddedMinKey[1];
     assert(mapOriginX >= 0 && mapOriginY >= 0);
 
+//ROS_WARN("in pre 6 \n");
     // might not exactly be min / max of octree:
     octomap::point3d origin = m_octree->keyToCoord(m_paddedMinKey, m_treeDepth);
     double gridRes = m_octree->getNodeSize(m_maxTreeDepth);
@@ -1814,24 +1825,31 @@ void OctomapServer::handlePreNodeTraversal(const ros::Time& rostime){
       m_gridmap.info.origin.position.y -= m_res/2.0;
     }
 
+    ROS_WARN("in pre 7 : %u %u\n", m_maxTreeDepth, m_treeDepth );
     // workaround for  multires. projection not working properly for inner nodes:
     // force re-building complete map
     if (m_maxTreeDepth < m_treeDepth)
       m_projectCompleteMap = true;
 
-    if(m_projectCompleteMap){
+    if(m_projectCompleteMap)
+    {
       //ROS_DEBUG("Rebuilding complete 2D map");
       ROS_WARN("Rebuilding complete 2D map \n");
       m_gridmap.data.clear();
       // init to unknown:
       m_gridmap.data.resize(m_gridmap.info.width * m_gridmap.info.height, -1);
+    }
+    else
+    {
 
-    } else {
-
-       if (mapChanged(oldMapInfo, m_gridmap.info)){
+      ROS_WARN("NOT Rebuilding complete 2D map \n");
+       if (mapChanged(oldMapInfo, m_gridmap.info))
+       {
           //ROS_DEBUG("2D grid map size changed to %dx%d", m_gridmap.info.width, m_gridmap.info.height);
           ROS_WARN("2D grid map size changed to %dx%d", m_gridmap.info.width, m_gridmap.info.height);
           adjustMapData(m_gridmap, oldMapInfo); // copying the map data to the re-sized map
+
+          //ROS_WARN("pre 8 \n");
        }
        nav_msgs::OccupancyGrid::_data_type::iterator startIt;
        size_t mapUpdateBBXMinX = std::max(0, (int(m_updateBBXMin[0]) - int(m_paddedMinKey[0]))/int(m_multires2DScale));
@@ -1839,26 +1857,32 @@ void OctomapServer::handlePreNodeTraversal(const ros::Time& rostime){
        size_t mapUpdateBBXMaxX = std::min(int(m_gridmap.info.width-1), (int(m_updateBBXMax[0]) - int(m_paddedMinKey[0]))/int(m_multires2DScale));
        size_t mapUpdateBBXMaxY = std::min(int(m_gridmap.info.height-1), (int(m_updateBBXMax[1]) - int(m_paddedMinKey[1]))/int(m_multires2DScale));
 
+       ROS_WARN("m_updateBBXMin[0] %d  m_paddedMinKey[0] %d  m_multires2DScale %d \n", int(m_updateBBXMin[0]),  int(m_paddedMinKey[0]), int(m_multires2DScale));
+       ROS_WARN("m_updateBBXMin[1] %d  m_paddedMinKey[1] %d  m_multires2DScale %d \n", int(m_updateBBXMin[1]),  int(m_paddedMinKey[1]), int(m_multires2DScale));
+       ROS_WARN("m_gridmap.info.width %d  m_updateBBXMax[0] %d  m_paddedMinKey[0] %d \n", int(m_gridmap.info.width),  int(m_updateBBXMax[0]), int(m_paddedMinKey[0]) );
+       ROS_WARN("m_gridmap.info.height %d  m_updateBBXMax[1] %d  m_paddedMinKey[1] %d \n", int(m_gridmap.info.height),  int(m_updateBBXMax[1]), int(m_paddedMinKey[1]));
+
+       ROS_WARN("%u %u %u %u \n", mapUpdateBBXMinX, mapUpdateBBXMinY, mapUpdateBBXMaxX, mapUpdateBBXMaxY);
    // Not sure what are we doing with the two lines below... but octomap crashes owing to the two lines below sometimes...
    //
        //assert(mapUpdateBBXMaxX > mapUpdateBBXMinX); // by kmHan
        //assert(mapUpdateBBXMaxY > mapUpdateBBXMinY);
 
        size_t numCols = mapUpdateBBXMaxX-mapUpdateBBXMinX +1;
-
+ROS_WARN("pre 10 \n");
        // test for max idx:
        uint max_idx = m_gridmap.info.width*mapUpdateBBXMaxY + mapUpdateBBXMaxX;
        if (max_idx  >= m_gridmap.data.size())
          ROS_ERROR("BBX index not valid: %d (max index %zu for size %d x %d) update-BBX is: [%zu %zu]-[%zu %zu]", max_idx, m_gridmap.data.size(), m_gridmap.info.width, m_gridmap.info.height, mapUpdateBBXMinX, mapUpdateBBXMinY, mapUpdateBBXMaxX, mapUpdateBBXMaxY);
 
        // reset proj. 2D map in bounding box:
-       for (unsigned int j = mapUpdateBBXMinY; j <= mapUpdateBBXMaxY; ++j){ // adding unknowns(-1) to the expanded region
+       for (unsigned int j = mapUpdateBBXMinY; j <= mapUpdateBBXMaxY; ++j)
+       { // adding unknowns(-1) to the expanded region
           std::fill_n(m_gridmap.data.begin() + m_gridmap.info.width*j+mapUpdateBBXMinX,
                       numCols, -1);
        }
-
     }
-
+    ROS_WARN("pre 11 \n");
   }
 
 }
