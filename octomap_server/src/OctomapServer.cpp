@@ -71,6 +71,7 @@ OctomapServer::OctomapServer(const ros::NodeHandle private_nh_, const ros::NodeH
   m_compressMap(true),
   m_incrementalUpdate(false),
   m_initConfig(true)
+  //m_publish2DMap(false)		// by kmHan
 {
   double probHit, probMiss, thresMin, thresMax;
 
@@ -818,7 +819,7 @@ startTime = ros::WallTime::now();
   bool publishPointCloud = (m_latchedTopics || m_pointCloudPub.getNumSubscribers() > 0);
   bool publishBinaryMap = (m_latchedTopics || m_binaryMapPub.getNumSubscribers() > 0);
   bool publishFullMap = (m_latchedTopics || m_fullMapPub.getNumSubscribers() > 0);
-  m_publish2DMap = (m_latchedTopics || m_mapPub.getNumSubscribers() > 0);
+  //m_publish2DMap = (m_latchedTopics || m_mapPub.getNumSubscribers() > 0);
 
   // init markers for free space:
   visualization_msgs::MarkerArray freeNodesVis;
@@ -1087,7 +1088,7 @@ startTime = ros::WallTime::now();
   bool publishPointCloud = (m_latchedTopics || m_pointCloudPub.getNumSubscribers() > 0);
   bool publishBinaryMap = (m_latchedTopics || m_binaryMapPub.getNumSubscribers() > 0);
   bool publishFullMap = (m_latchedTopics || m_fullMapPub.getNumSubscribers() > 0);
-  m_publish2DMap = (m_latchedTopics || m_mapPub.getNumSubscribers() > 0);
+  //m_publish2DMap = (m_latchedTopics || m_mapPub.getNumSubscribers() > 0);
 
   // init markers for free space:
   visualization_msgs::MarkerArray freeNodesVis;
@@ -1474,7 +1475,7 @@ ROS_WARN("free cell size: %d \n", free_cells.size() );
 endTime = ros::WallTime::now();
 double gridmapUpdateTime = (endTime - startTime).toNSec() * 1e-6   ;
 
-ROS_WARN("PublishAll() tot, free, occu: %u %u %u\n", uNumNode, uNumFreeNode, uNumOccuNode);
+//ROS_WARN("PublishAll() tot, free, occu: %u %u %u\n", uNumNode, uNumFreeNode, uNumOccuNode);
   // call post-traversal hook:
 
 startTime = ros::WallTime::now();
@@ -1753,7 +1754,7 @@ void OctomapServer::filterGroundPlane(const PCLPointCloud& pc, PCLPointCloud& gr
 }
 
 void OctomapServer::handlePreNodeTraversal(const ros::Time& rostime){
-  if (m_publish2DMap)
+  if (false) //m_publish2DMap)
   {
 //ROS_WARN("in pre 0 \n");
     // init projected 2D map:
