@@ -36,7 +36,7 @@
 #include <nav_msgs/OccupancyGrid.h>
 #include <std_msgs/ColorRGBA.h>
 
-#include "/home/hankm/catkin_ws/src/gridmap_2d/include/gridmap_2d/GridMap2D.h"
+#include "../../../gridmap_2d/include/gridmap_2d/GridMap2D.h"
 #include <gridmap_2d/GridMap2D.h>
 #include <cv_bridge/cv_bridge.h>
 #include <tf/transform_listener.h>
