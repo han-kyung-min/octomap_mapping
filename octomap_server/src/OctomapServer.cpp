@@ -400,7 +400,7 @@ void OctomapServer::insertCloudCallback(const sensor_msgs::PointCloud2::ConstPtr
   //double total_elapsed = (ros::WallTime::now() - startTime).toSec();
 //ROS_WARN("msg2pcl, tform, insertion, total: \n (%04f) (%04f) (%04f) (%04f) (ms)",  msg2pclTime, segTime, insertTime, msg2pclTime+segTime+insertTime);
 
-  ROS_WARN("Pointcloud insertion in OctomapServer done \n (%zu+%zu pts (ground/nonground))", pc_ground.size(), pc_nonground.size());
+  //ROS_WARN("Pointcloud insertion in OctomapServer done \n (%zu+%zu pts (ground/nonground))", pc_ground.size(), pc_nonground.size());
 
 
 //startTime = ros::WallTime::now();
@@ -819,7 +819,7 @@ startTime = ros::WallTime::now();
   bool publishPointCloud = (m_latchedTopics || m_pointCloudPub.getNumSubscribers() > 0);
   bool publishBinaryMap = (m_latchedTopics || m_binaryMapPub.getNumSubscribers() > 0);
   bool publishFullMap = (m_latchedTopics || m_fullMapPub.getNumSubscribers() > 0);
-  //m_publish2DMap = (m_latchedTopics || m_mapPub.getNumSubscribers() > 0);
+  m_publish2DMap = (m_latchedTopics || m_mapPub.getNumSubscribers() > 0);
 
   // init markers for free space:
   visualization_msgs::MarkerArray freeNodesVis;
@@ -859,7 +859,7 @@ startTime = ros::WallTime::now();
   // this is the major bottleneck causes the runtime issue.
   // It would be better that we somehow identify which node to update, then update them only.
 
-ROS_WARN("In PublishAll() octree size: %u \n", octomapSize );
+//ROS_WARN("In PublishAll() octree size: %u \n", octomapSize );
 
   for (OcTreeT::iterator it = m_octree->begin(m_maxTreeDepth),
       end = m_octree->end(); it != end; ++it) // leaf iteration w/o visiting inner node
@@ -971,7 +971,7 @@ ROS_WARN("In PublishAll() octree size: %u \n", octomapSize );
 endTime = ros::WallTime::now();
 double gridmapUpdateTime = (endTime - startTime).toNSec() * 1e-6   ;
 
-ROS_WARN("PublishAll() tot, free, occu: %u %u %u\n", uNumNode, uNumFreeNode, uNumOccuNode);
+//ROS_WARN("PublishAll() tot, free, occu: %u %u %u\n", uNumNode, uNumFreeNode, uNumOccuNode);
   // call post-traversal hook:
 
 startTime = ros::WallTime::now();
@@ -1088,7 +1088,7 @@ startTime = ros::WallTime::now();
   bool publishPointCloud = (m_latchedTopics || m_pointCloudPub.getNumSubscribers() > 0);
   bool publishBinaryMap = (m_latchedTopics || m_binaryMapPub.getNumSubscribers() > 0);
   bool publishFullMap = (m_latchedTopics || m_fullMapPub.getNumSubscribers() > 0);
-  //m_publish2DMap = (m_latchedTopics || m_mapPub.getNumSubscribers() > 0);
+  m_publish2DMap = (m_latchedTopics || m_mapPub.getNumSubscribers() > 0);
 
   // init markers for free space:
   visualization_msgs::MarkerArray freeNodesVis;
@@ -1126,7 +1126,7 @@ startTime = ros::WallTime::now();
   // this is the major bottleneck causes the runtime issue.
   // It would be better that we somehow identify which node to update, then update them only.
 
-ROS_WARN("In PublishAll() octree size: %u \n", octomapSize );
+//ROS_WARN("In PublishAll() octree size: %u \n", octomapSize );
 
 //for(KeySet::iterator it = free_cells.begin(), end=free_cells.end(); it!= end; ++it)
 //{
@@ -1292,7 +1292,7 @@ ROS_WARN("In PublishAll() octree size: %u \n", octomapSize );
 endTime = ros::WallTime::now();
 double gridmapUpdateTime = (endTime - startTime).toNSec() * 1e-6   ;
 
-ROS_WARN("PublishAll() tot, free, occu: %u %u %u\n", uNumNode, uNumFreeNode, uNumOccuNode);
+//ROS_WARN("PublishAll() tot, free, occu: %u %u %u\n", uNumNode, uNumFreeNode, uNumOccuNode);
   // call post-traversal hook:
 
 startTime = ros::WallTime::now();
@@ -1433,7 +1433,7 @@ startTime = ros::WallTime::now();
   // this is the major bottleneck causes the runtime issue.
   // It would be better that we somehow identify which node to update, then update them only.
 
-ROS_WARN("free cell size: %d \n", free_cells.size() );
+//ROS_WARN("free cell size: %d \n", free_cells.size() );
 
 	float toCell = (1.f/m_gridmap.info.resolution) ;
 
@@ -1463,7 +1463,7 @@ ROS_WARN("free cell size: %d \n", free_cells.size() );
 // publish # of cell changes
 	int32_t nNumCellCoverage = m_oGridMap2D.GetNumCellCoverageAtCurrStep();
 	//m_gridmapChangesPub.publish( nNumCellCoverage ) ;
-	ROS_ERROR("# cell coverages %d \n", nNumCellCoverage);
+	//ROS_ERROR("# cell coverages %d \n", nNumCellCoverage);
 
 
 //cv::namedWindow("tmp", 1);
