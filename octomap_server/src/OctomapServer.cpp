@@ -70,7 +70,8 @@ OctomapServer::OctomapServer(const ros::NodeHandle private_nh_, const ros::NodeH
   m_groundFilterDistance(0.04), m_groundFilterAngle(0.15), m_groundFilterPlaneDistance(0.07),
   m_compressMap(true),
   m_incrementalUpdate(false),
-  m_initConfig(true)
+  m_initConfig(true),
+  m_nNumPyrDownSample(0)		// by kmHan
   //m_publish2DMap(false)		// by kmHan
 {
   double probHit, probMiss, thresMin, thresMax;
@@ -191,8 +192,14 @@ ROS_WARN("res: %f", m_res);
   f = boost::bind(&OctomapServer::reconfigureCallback, this, _1, _2);
   m_reconfigureServer.setCallback(f);
 
+  m_nh_private.param("num_pyrdownsample", m_nNumPyrDownSample);
+
   m_pgridmap = boost::shared_ptr<nav_msgs::OccupancyGrid>( &m_gridmap );
-  m_oGridMap2D = gridmap_2d::GridMap2D(); // m_pgridmap, false );
+  m_oGridMap2D = gridmap_2d::GridMap2D( m_nNumPyrDownSample ); // m_pgridSmap, false );
+
+  // Set gridmap param
+  m_nh_private.setParam("gridmap/width",  m_oGridMap2D.getGridMapWidth() );
+  m_nh_private.setParam("gridmap/height", m_oGridMap2D.getGridMapHeight());  // width of down sampled gridmap
 
   m_ofs_servertime.open("/home/hankm/catkin_ws/src/octomap_mapping/timing_test/octomap_server_timing.txt");
   m_ofs_servertime.precision(4);
@@ -1470,7 +1477,6 @@ startTime = ros::WallTime::now();
 //cv::imshow("tmp", m_oGridMap2D.binaryMapUnknownPaddedFlip());
 //cv::waitKey(10);
 
-//assert(0);
 
 endTime = ros::WallTime::now();
 double gridmapUpdateTime = (endTime - startTime).toNSec() * 1e-6   ;
@@ -1918,6 +1924,11 @@ void OctomapServer::handlePostNodeTraversal(const ros::Time& rostime){
     m_mapframedataPub.publish(mapframe_data);
     //m_mapImagePub.publish( img_msg ); //kmHan
 
+    cv::namedWindow("tmp", 1);
+    cv::imshow("tmp", m_oGridMap2D.gridMapDownSampled() );
+    cv::waitKey(10);
+
+
     //cv::imwrite("/home/hankm/catkin_ws/src/gridmap_2d/images/gridmap.png",m_oGridMap2D.binaryMapUnknownPaddedFlip());
 
   }
@@ -2034,6 +2045,7 @@ void OctomapServer::reconfigureCallback(octomap_server::OctomapServerConfig& con
     m_filterGroundPlane         = config.filter_ground;
     m_compressMap               = config.compress_map;
     m_incrementalUpdate         = config.incremental_2D_projection;
+    m_nNumPyrDownSample			= config.num_pyrdownsample;		//	kmHan
 
     // Parameters with a namespace require an special treatment at the beginning, as dynamic reconfigure
     // will overwrite them because the server is not able to match parameters' names.

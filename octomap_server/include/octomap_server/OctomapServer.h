@@ -288,6 +288,8 @@ protected:
   bool m_projectCompleteMap;
   bool m_useColoredMap;
 
+  int32_t m_nNumPyrDownSample ;
+
   // map image
   nav_msgs::OccupancyGridConstPtr m_pgridmap;
   gridmap_2d::GridMap2D m_oGridMap2D;
