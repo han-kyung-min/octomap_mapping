@@ -1897,11 +1897,15 @@ void OctomapServer::handlePostNodeTraversal(const ros::Time& rostime){
     // kmHan
 //    m_oGridMap2D.setMap( m_gridmap, m_sensorToWorld, false );
 
+    // flip gridmap followed by downsampling
+    m_oGridMap2D.setBinaryMapUnknownPaddedFlip();
+    m_oGridMap2D.downSampleGridmap();
+
     octomap_server::mapframedata mapframe_data ;
     sensor_msgs::Image img_msg;
     std_msgs::Header header;
     cv_bridge::CvImage img_bridge;
-    img_bridge = cv_bridge::CvImage(header, sensor_msgs::image_encodings::MONO8, m_oGridMap2D.binaryMapUnknownPaddedFlip() );
+    img_bridge = cv_bridge::CvImage(header, sensor_msgs::image_encodings::MONO8, m_oGridMap2D.gridMapDownSampled() );
 //    img_bridge = cv_bridge::CvImage(header, sensor_msgs::image_encodings::TYPE_8UC1, m_oGridMap2D.binaryMapUnknownPadded() );
     img_bridge.toImageMsg(img_msg);
     img_bridge.toImageMsg(mapframe_data.image_map_2d);
