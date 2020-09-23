@@ -234,6 +234,8 @@ protected:
   message_filters::Subscriber<sensor_msgs::PointCloud2>* m_pointCloudSub;
   tf::MessageFilter<sensor_msgs::PointCloud2>* m_tfPointCloudSub;
   ros::ServiceServer m_octomapBinaryService, m_octomapFullService, m_clearBBXService, m_resetService;
+  ros::ServiceServer m_insertCloudService;	// by kmHan
+
   tf::TransformListener m_tfListener;
   boost::recursive_mutex m_config_mutex;
   dynamic_reconfigure::Server<OctomapServerConfig> m_reconfigureServer;

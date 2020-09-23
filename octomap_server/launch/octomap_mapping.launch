@@ -7,8 +7,8 @@
   www.ros.org/wiki/octomap_server for details  
 -->
 <launch>
-    <arg name="use_sim_time"                value="true"/> <!--by kmHan-->
-    <param name="use_sim_time" value="$(arg use_sim_time)"/> <!--by kmHan-->
+    <!--arg name="use_sim_time"                value="false"/--> <!--by kmHan-->
+    <param name="use_sim_time" value="true"/> <!--by kmHan-->
 	<node pkg="octomap_server" type="octomap_server_node" name="octomap_server">
 
         <param name="incremental_2D_projection" value="true" />
