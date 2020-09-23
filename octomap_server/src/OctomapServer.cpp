@@ -187,7 +187,7 @@ ROS_WARN("res: %f", m_res);
   m_octomapFullService = m_nh.advertiseService("octomap_full", &OctomapServer::octomapFullSrv, this);
   m_clearBBXService = m_nh_private.advertiseService("clear_bbx", &OctomapServer::clearBBXSrv, this);
   m_resetService = m_nh_private.advertiseService("reset", &OctomapServer::resetSrv, this);
-  //m_insertCloudService = m_nh_private.advertiseService("insert_cloud", &OctomapServer::insertCloudSrv, this);
+  m_insertCloudService = m_nh_private.advertiseService("insert_cloud", &OctomapServer::insertCloudSrv, this);
 
   dynamic_reconfigure::Server<OctomapServerConfig>::CallbackType f;
   f = boost::bind(&OctomapServer::reconfigureCallback, this, _1, _2);
@@ -1633,7 +1633,7 @@ bool OctomapServer::resetSrv(std_srvs::Empty::Request& req, std_srvs::Empty::Res
 }
 
 
-bool OctomapServer::insertCloudSrv(const sensor_msgs::PointCloud2::ConstPtr& cloud, std_srvs::Empty::Response& resp)
+bool OctomapServer::insertCloudSrv(srv::InserCloudService::PointlCloud2& cloud, srv::InsertCloudService::resp)
 {
 	ros::WallTime startTime, endTime;
 	PCLPointCloud pc ;
