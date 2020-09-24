@@ -187,7 +187,6 @@ ROS_WARN("res: %f", m_res);
   m_octomapFullService = m_nh.advertiseService("octomap_full", &OctomapServer::octomapFullSrv, this);
   m_clearBBXService = m_nh_private.advertiseService("clear_bbx", &OctomapServer::clearBBXSrv, this);
   m_resetService = m_nh_private.advertiseService("reset", &OctomapServer::resetSrv, this);
-  //m_insertCloudService = m_nh_private.advertiseService("insert_cloud", &OctomapServer::insertCloudSrv, this);
 
   dynamic_reconfigure::Server<OctomapServerConfig>::CallbackType f;
   f = boost::bind(&OctomapServer::reconfigureCallback, this, _1, _2);
@@ -1633,101 +1632,6 @@ bool OctomapServer::resetSrv(std_srvs::Empty::Request& req, std_srvs::Empty::Res
 }
 
 
-bool OctomapServer::insertCloudSrv(const sensor_msgs::PointCloud2::ConstPtr& cloud, std_srvs::Empty::Response& resp)
-{
-	ros::WallTime startTime, endTime;
-	PCLPointCloud pc ;
-	pcl::fromROSMsg(*cloud, pc);
-
-	tf::StampedTransform sensorToWorldTf;
-	try
-	{
-		m_tfListener.lookupTransform(m_worldFrameId, cloud->header.frame_id, cloud->header.stamp, sensorToWorldTf);
-	}
-	catch(tf::TransformException& ex)
-	{
-		ROS_ERROR_STREAM( "Transform error of sensor data: " << ex.what() << ", quitting callback");
-		return false;
-	}
-
-	Eigen::Matrix4f sensorToWorld;
-	pcl_ros::transformAsMatrix(sensorToWorldTf, sensorToWorld);
-
-	// set up filter for height range, also removes NANs:
-	pcl::PassThrough<PCLPoint> pass_x;
-	pass_x.setFilterFieldName("x");
-	pass_x.setFilterLimits(m_pointcloudMinX, m_pointcloudMaxX);
-	pcl::PassThrough<PCLPoint> pass_y;
-	pass_y.setFilterFieldName("y");
-	pass_y.setFilterLimits(m_pointcloudMinY, m_pointcloudMaxY);
-	pcl::PassThrough<PCLPoint> pass_z;
-	pass_z.setFilterFieldName("z");
-	pass_z.setFilterLimits(m_pointcloudMinZ, m_pointcloudMaxZ);
-
-	PCLPointCloud pc_ground; // segmented ground plane
-	PCLPointCloud pc_nonground; // everything else
-
-	if (m_filterGroundPlane)
-	{
-		tf::StampedTransform sensorToBaseTf, baseToWorldTf;
-		try
-		{
-		  m_tfListener.waitForTransform(m_baseFrameId, cloud->header.frame_id, cloud->header.stamp, ros::Duration(0.2));
-		  m_tfListener.lookupTransform(m_baseFrameId, cloud->header.frame_id, cloud->header.stamp, sensorToBaseTf);
-		  m_tfListener.lookupTransform(m_worldFrameId, m_baseFrameId, cloud->header.stamp, baseToWorldTf);
-		}
-		catch(tf::TransformException& ex)
-		{
-		  ROS_ERROR_STREAM( "Transform error for ground plane filter: " << ex.what() << ", quitting callback.\n"
-							"You need to set the base_frame_id or disable filter_ground.");
-		}
-
-		Eigen::Matrix4f sensorToBase, baseToWorld;
-		pcl_ros::transformAsMatrix(sensorToBaseTf, sensorToBase);
-		pcl_ros::transformAsMatrix(baseToWorldTf, baseToWorld);
-
-		// transform pointcloud from sensor frame to fixed robot frame
-		pcl::transformPointCloud(pc, pc, sensorToBase);
-		pass_x.setInputCloud(pc.makeShared());
-		pass_x.filter(pc);
-		pass_y.setInputCloud(pc.makeShared());
-		pass_y.filter(pc);
-		pass_z.setInputCloud(pc.makeShared());
-		pass_z.filter(pc);
-		filterGroundPlane(pc, pc_ground, pc_nonground);
-
-		// transform clouds to world frame for insertion
-		pcl::transformPointCloud(pc_ground, pc_ground, baseToWorld);
-		pcl::transformPointCloud(pc_nonground, pc_nonground, baseToWorld);
-	}
-	else
-	{
-		// directly transform to map frame:
-		pcl::transformPointCloud(pc, pc, sensorToWorld);
-
-		// just filter height range:
-		pass_x.setInputCloud(pc.makeShared());
-		pass_x.filter(pc);
-		pass_y.setInputCloud(pc.makeShared());
-		pass_y.filter(pc);
-		pass_z.setInputCloud(pc.makeShared());
-		pass_z.filter(pc);
-
-		pc_nonground = pc;
-		// pc_nonground is empty without ground segmentation
-		pc_ground.header = pc.header;
-		pc_nonground.header = pc.header;
-	}
-
-	KeySet free_cells, occupied_cells;
-	insertScan(sensorToWorldTf.getOrigin(), pc_ground, pc_nonground, free_cells, occupied_cells);
-	publishOctomap( cloud->header.stamp, sensorToWorld, free_cells, occupied_cells );
-	free_cells.clear();
-	occupied_cells.clear();
-
-	return true;
-}
-
 void OctomapServer::publishBinaryOctoMap(const ros::Time& rostime) const{
 
   Octomap map;
@@ -2020,6 +1924,7 @@ void OctomapServer::handlePostNodeTraversal(const ros::Time& rostime){
     img_bridge.toImageMsg(img_msg);
     img_bridge.toImageMsg(mapframe_data.image_map_2d);
 
+    mapframe_data.header.stamp = ros::Time::now();
     mapframe_data.nCoverageUpdate = m_oGridMap2D.GetNumCellCoverageAtCurrStep();
     mapframe_data.nTotCoverage = m_oGridMap2D.GetTotCellCoverage() ;
 
