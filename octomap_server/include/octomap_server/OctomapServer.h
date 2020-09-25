@@ -66,6 +66,8 @@
 #include <octomap/octomap.h>
 #include <octomap/OcTreeKey.h>
 
+#include <keyboard/Key.h>
+
 //#define COLOR_OCTOMAP_SERVER // switch color here - easier maintenance, only maintain OctomapServer. Two targets are defined in the cmake, octomap_server_color and octomap_server. One has this defined, and the other doesn't
 
 #ifdef COLOR_OCTOMAP_SERVER
@@ -120,6 +122,7 @@ protected:
             && key[1] <= m_updateBBXMax[1]);
   }
 
+  void keyboardCallback( const keyboard::Key& inKey );
   void reconfigureCallback(octomap_server::OctomapServerConfig& config, uint32_t level);
   void publishBinaryOctoMap(const ros::Time& rostime = ros::Time::now()) const;
   void publishFullOctoMap(const ros::Time& rostime = ros::Time::now()) const;
@@ -209,6 +212,9 @@ protected:
   boost::recursive_mutex m_config_mutex;
   dynamic_reconfigure::Server<OctomapServerConfig> m_reconfigureServer;
 
+  ros::Subscriber m_keyboardSub;
+  //ros::Subscriber m_keyboardUpSub;
+
   OcTreeT* m_octree;
   octomap::KeyRay m_keyRay;  // temp storage for ray casting
   octomap::OcTreeKey m_updateBBXMin;
@@ -259,6 +265,9 @@ protected:
   unsigned m_multires2DScale;
   bool m_projectCompleteMap;
   bool m_useColoredMap;
+
+  keyboard::Key m_keyboardCurr;
+  keyboard::Key m_keyboardPrev;
 };
 }
 

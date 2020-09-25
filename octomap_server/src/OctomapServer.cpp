@@ -185,6 +185,8 @@ OctomapServer::OctomapServer(const ros::NodeHandle private_nh_, const ros::NodeH
   dynamic_reconfigure::Server<OctomapServerConfig>::CallbackType f;
   f = boost::bind(&OctomapServer::reconfigureCallback, this, _1, _2);
   m_reconfigureServer.setCallback(f);
+
+  m_keyboardSub	= m_nh.subscribe("keyboard/keyup", 1, &OctomapServer::keyboardCallback, this);
 }
 
 OctomapServer::~OctomapServer(){
@@ -369,7 +371,8 @@ void OctomapServer::insertScan(const tf::Point& sensorOriginTf, const PCLPointCl
   // instead of direct scan insertion, compute update to filter ground:
   KeySet free_cells, occupied_cells;
   // insert ground points only as free:
-  for (PCLPointCloud::const_iterator it = ground.begin(); it != ground.end(); ++it){
+  for (PCLPointCloud::const_iterator it = ground.begin(); it != ground.end(); ++it)
+  {
     point3d point(it->x, it->y, it->z);
     // maxrange check
     if ((m_maxRange > 0.0) && ((point - sensorOrigin).norm() > m_maxRange) ) {
@@ -390,8 +393,15 @@ void OctomapServer::insertScan(const tf::Point& sensorOriginTf, const PCLPointCl
     }
   }
 
+  ros::WallTime startTime, endTime;
+  startTime = ros::WallTime::now();
+
+
+// begin rayshooting
+
   // all other points: free on ray, occupied on endpoint:
-  for (PCLPointCloud::const_iterator it = nonground.begin(); it != nonground.end(); ++it){
+  for (PCLPointCloud::const_iterator it = nonground.begin(); it != nonground.end(); ++it)
+  {
     point3d point(it->x, it->y, it->z);
     // maxrange check
     if ((m_maxRange < 0.0) || ((point - sensorOrigin).norm() <= m_maxRange) ) {
@@ -425,11 +435,19 @@ void OctomapServer::insertScan(const tf::Point& sensorOriginTf, const PCLPointCl
         } else{
           ROS_ERROR_STREAM("Could not generate Key for endpoint "<<new_end);
         }
-
-
       }
     }
   }
+
+  if( m_keyboardCurr.code == 273 )
+  {
+	  endTime = ros::WallTime::now();
+	  double rayShootingTime = (endTime - startTime).toNSec() * 1e-6   ;
+	  ROS_WARN("ray shooting time %f \n", rayShootingTime);
+	  ROS_WARN("keyboard code: %d", m_keyboardCurr.code);
+	  m_keyboardPrev = m_keyboardCurr;
+  }
+
 
   // mark free cells only if not seen occupied in this cloud
   for(KeySet::iterator it = free_cells.begin(), end=free_cells.end(); it!= end; ++it){
@@ -1128,6 +1146,12 @@ bool OctomapServer::isSpeckleNode(const OcTreeKey&nKey) const {
   return neighborFound;
 }
 
+void OctomapServer::keyboardCallback( const keyboard::Key& inKey )
+{
+	m_keyboardCurr = inKey;
+	ROS_WARN("keyboard code : %d \n", inKey.code);
+}
+
 void OctomapServer::reconfigureCallback(octomap_server::OctomapServerConfig& config, uint32_t level){
   if (m_maxTreeDepth != unsigned(config.max_depth))
     m_maxTreeDepth = unsigned(config.max_depth);
@@ -1227,7 +1251,8 @@ void OctomapServer::adjustMapData(nav_msgs::OccupancyGrid& map, const nav_msgs::
 }
 
 
-std_msgs::ColorRGBA OctomapServer::heightMapColor(double h) {
+std_msgs::ColorRGBA OctomapServer::heightMapColor(double h)
+{
 
   std_msgs::ColorRGBA color;
   color.a = 1.0;

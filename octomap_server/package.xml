@@ -32,7 +32,8 @@
   <build_depend>dynamic_reconfigure</build_depend>
   <build_depend>nodelet</build_depend>
   <build_depend>libpcl-all-dev</build_depend>
-
+  <build_depend>keyboard</build_depend>
+  
  <run_depend>roscpp</run_depend>
  <run_depend>visualization_msgs</run_depend>
  <run_depend>sensor_msgs</run_depend>
@@ -47,6 +48,7 @@
  <run_depend>dynamic_reconfigure</run_depend>
  <run_depend>nodelet</run_depend>
  <run_depend>libpcl-all</run_depend>
+ <run_depend>keyboard</run_depend>
  
 </package>
 
