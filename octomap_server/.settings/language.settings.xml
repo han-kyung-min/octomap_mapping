@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <project>
     	
+<<<<<<< HEAD
     <configuration id="cdt.managedbuild.config.gnu.exe.debug.174000924" name="Debug">
+=======
+    <configuration id="cdt.managedbuild.config.gnu.exe.debug.1085617726" name="Debug">
+>>>>>>> gridmap_downsampled
         		
         <extension point="org.eclipse.cdt.core.LanguageSettingsProvider">
             			
@@ -23,7 +27,11 @@
         	
     </configuration>
     	
+<<<<<<< HEAD
     <configuration id="cdt.managedbuild.config.gnu.exe.release.236025102" name="Release">
+=======
+    <configuration id="cdt.managedbuild.config.gnu.exe.release.609782954" name="Release">
+>>>>>>> gridmap_downsampled
         		
         <extension point="org.eclipse.cdt.core.LanguageSettingsProvider">
             			

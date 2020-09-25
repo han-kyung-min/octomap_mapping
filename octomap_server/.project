@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
+<<<<<<< HEAD
 	<name>octomap_project</name>
+=======
+	<name>octomap_server_project</name>
+>>>>>>> gridmap_downsampled
 	<comment></comment>
 	<projects>
 	</projects>

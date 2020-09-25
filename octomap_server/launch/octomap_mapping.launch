@@ -7,17 +7,36 @@
   www.ros.org/wiki/octomap_server for details  
 -->
 <launch>
+    <!--arg name="use_sim_time"                value="false"/--> <!--by kmHan-->
+    <!--param name="use_sim_time" value="true"/--> <!--by kmHan-->
 	<node pkg="octomap_server" type="octomap_server_node" name="octomap_server">
+
+        <param name="incremental_2D_projection" value="true" />
+	
+        <param name="max_depth" value="16" />
+			
 		<param name="resolution" value="0.05" />
 		
 		<!-- fixed map frame (set to 'map' if SLAM or localization running!) -->
-		<param name="frame_id" type="string" value="odom_combined" />
+		<param name="frame_id" type="string" value="world" />
 		
 		<!-- maximum range to integrate (speedup!) -->
 		<param name="sensor_model/max_range" value="5.0" />
 		
 		<!-- data source to integrate (PointCloud2) -->
-		<remap from="cloud_in" to="/narrow_stereo/points_filtered2" />
-	
-	</node>
+		<!--remap from="cloud_in" to="/narrow_stereo/points_filtered2" /-->
+		<remap from="/cloud_in" to="/gt_point_cloud_xyz" />
+    </node>
+    
+    <!-- Publishes the voxel grid to rviz for display -->
+    <!--node pkg="costmap_2d" type="costmap_2d_markers" name="voxel_visualizer">
+        <remap from="voxel_grid" to="costmap/voxel_grid"/>
+    </node-->
+
+    <!-- Run the costmap node -->
+    <!--node name="costmap_node" pkg="costmap_2d" type="costmap_2d_node" >
+        <remap from="/base_link" to="/base_link_gt"/>
+        <remap from="/map" to="/world"/-->
+        <!-- rosparam file="$(find costmap_2d)/launch/example_params.yaml" command="load" ns="costmap" /-->
+    <!--/node-->
 </launch>

@@ -30,10 +30,19 @@
 #ifndef OCTOMAP_SERVER_OCTOMAPSERVER_H
 #define OCTOMAP_SERVER_OCTOMAPSERVER_H
 
+#include <mutex>
 #include <ros/ros.h>
 #include <visualization_msgs/MarkerArray.h>
 #include <nav_msgs/OccupancyGrid.h>
 #include <std_msgs/ColorRGBA.h>
+
+#include "../../../gridmap_2d/include/gridmap_2d/GridMap2D.h"
+#include <gridmap_2d/GridMap2D.h>
+#include <cv_bridge/cv_bridge.h>
+#include <tf/transform_listener.h>
+#include <sensor_msgs/Image.h>
+//#include <sensor_msgs/Image_encodings.h>
+#include <octomap_server/mapframedata.h>
 
 // #include <moveit_msgs/CollisionObject.h>
 // #include <moveit_msgs/CollisionMap.h>
@@ -44,7 +53,10 @@
 
 #include <pcl/point_types.h>
 #include <pcl/conversions.h>
+
 #include <pcl_ros/transforms.h>
+#include <pcl_ros/filters/voxel_grid.h>
+
 #include <pcl/sample_consensus/method_types.h>
 #include <pcl/sample_consensus/model_types.h>
 #include <pcl/segmentation/sac_segmentation.h>
@@ -66,18 +78,35 @@
 #include <octomap/octomap.h>
 #include <octomap/OcTreeKey.h>
 
+#include <opencv2/core/core.hpp>
+#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
+
+//#define COLOR_OCTOMAP_SERVER // switch color here - easier maintenance, only maintain OctomapServer. Two targets are defined in the cmake, octomap_server_color and octomap_server. One has this defined, and the other doesn't
+
+#define UNKNOWN (-1)
+
+#ifdef COLOR_OCTOMAP_SERVER
+#include <octomap/ColorOcTree.h>
+#endif
 
 namespace octomap_server {
-class OctomapServer{
+class OctomapServer {
 
 public:
+#ifdef COLOR_OCTOMAP_SERVER
+  typedef pcl::PointXYZRGB PCLPoint;
+  typedef pcl::PointCloud<pcl::PointXYZRGB> PCLPointCloud;
+  typedef octomap::ColorOcTree OcTreeT;
+#else
+  typedef pcl::PointXYZ PCLPoint;
   typedef pcl::PointCloud<pcl::PointXYZ> PCLPointCloud;
+  typedef octomap::OcTree OcTreeT;
+#endif
   typedef octomap_msgs::GetOctomap OctomapSrv;
   typedef octomap_msgs::BoundingBoxQuery BBXSrv;
 
-  typedef octomap::OcTree OcTreeT;
-
-  OctomapServer(ros::NodeHandle private_nh_ = ros::NodeHandle("~"));
+  OctomapServer(const ros::NodeHandle private_nh_ = ros::NodeHandle("~"), const ros::NodeHandle &nh_ = ros::NodeHandle());
   virtual ~OctomapServer();
   virtual bool octomapBinarySrv(OctomapSrv::Request  &req, OctomapSrv::GetOctomap::Response &res);
   virtual bool octomapFullSrv(OctomapSrv::Request  &req, OctomapSrv::GetOctomap::Response &res);
@@ -88,31 +117,38 @@ public:
   virtual bool openFile(const std::string& filename);
 
 protected:
-  inline static void updateMinKey(const octomap::OcTreeKey& in, octomap::OcTreeKey& min){
-    for (unsigned i=0; i<3; ++i)
+  inline static void updateMinKey(const octomap::OcTreeKey& in, octomap::OcTreeKey& min) {
+    for (unsigned i = 0; i < 3; ++i)
       min[i] = std::min(in[i], min[i]);
   };
-  
-  inline static void updateMaxKey(const octomap::OcTreeKey& in, octomap::OcTreeKey& max){
-    for (unsigned i=0; i<3; ++i)
+
+  inline static void updateMaxKey(const octomap::OcTreeKey& in, octomap::OcTreeKey& max) {
+    for (unsigned i = 0; i < 3; ++i)
       max[i] = std::max(in[i], max[i]);
   };
- 
+
   /// Test if key is within update area of map (2D, ignores height)
-  inline bool isInUpdateBBX(const octomap::OcTree::iterator& it) const{
+  inline bool isInUpdateBBX(const OcTreeT::iterator& it) const {
     // 2^(tree_depth-depth) voxels wide:
     unsigned voxelWidth = (1 << (m_maxTreeDepth - it.getDepth()));
     octomap::OcTreeKey key = it.getIndexKey(); // lower corner of voxel
-    return (key[0]+voxelWidth >= m_updateBBXMin[0]
-         && key[1]+voxelWidth >= m_updateBBXMin[1]
-         && key[0] <= m_updateBBXMax[0]
-         && key[1] <= m_updateBBXMax[1]);
+    return (key[0] + voxelWidth >= m_updateBBXMin[0]
+            && key[1] + voxelWidth >= m_updateBBXMin[1]
+            && key[0] <= m_updateBBXMax[0]
+            && key[1] <= m_updateBBXMax[1]);
   }
 
   void reconfigureCallback(octomap_server::OctomapServerConfig& config, uint32_t level);
   void publishBinaryOctoMap(const ros::Time& rostime = ros::Time::now()) const;
   void publishFullOctoMap(const ros::Time& rostime = ros::Time::now()) const;
+<<<<<<< HEAD
   void publishAll(const ros::Time& rostime = ros::Time::now());
+=======
+//  virtual void publishAll(const ros::Time& rostime = ros::Time::now());
+  void publishAll(const ros::Time& rostime = ros::Time::now());
+  void publishAll(const ros::Time& rostime, octomap::KeySet& free_cells, octomap::KeySet& occupied_cells  );
+  void publishOctomap(const ros::Time& rostime, const Eigen::Matrix4f sensorToWorld, octomap::KeySet& free_cells, octomap::KeySet& occupied_cells  );
+>>>>>>> gridmap_downsampled
 
   /**
   * @brief update occupancy map with a scan labeled as ground and nonground.
@@ -122,7 +158,12 @@ protected:
   * @param ground scan endpoints on the ground plane (only clear space)
   * @param nonground all other endpoints (clear up to occupied endpoint)
   */
-  virtual void insertScan(const tf::Point& sensorOrigin, const PCLPointCloud& ground, const PCLPointCloud& nonground);
+//  virtual void insertScan(const tf::Point& sensorOrigin, const PCLPointCloud& ground, const PCLPointCloud& nonground)
+
+  void insertScan(const tf::Point& sensorOrigin, const PCLPointCloud& ground, const PCLPointCloud& nonground);
+  void insertScan(const tf::Point& sensorOrigin, const PCLPointCloud& ground, const PCLPointCloud& nonground
+			,octomap::KeySet& free_cells, octomap::KeySet& occupied_cells);
+
 
   /// label the input cloud "pc" into ground and nonground. Should be in the robot's fixed frame (not world!)
   void filterGroundPlane(const PCLPointCloud& pc, PCLPointCloud& ground, PCLPointCloud& nonground) const;
@@ -160,14 +201,15 @@ protected:
 
   /// updates the downprojected 2D map as either occupied or free
   virtual void update2DMap(const OcTreeT::iterator& it, bool occupied);
+  virtual void update2DGrid(const octomap::OcTreeKey& it_, bool occupied);
 
-  inline unsigned mapIdx(int i, int j) const{
-    return m_gridmap.info.width*j + i;
+  inline unsigned mapIdx(int i, int j) const {
+    return m_gridmap.info.width * j + i;
   }
 
-  inline unsigned mapIdx(const octomap::OcTreeKey& key) const{
-    return mapIdx((key[0] - m_paddedMinKey[0])/m_multires2DScale,
-        (key[1] - m_paddedMinKey[1])/m_multires2DScale);
+  inline unsigned mapIdx(const octomap::OcTreeKey& key) const {
+    return mapIdx((key[0] - m_paddedMinKey[0]) / m_multires2DScale,
+                  (key[1] - m_paddedMinKey[1]) / m_multires2DScale);
 
   }
 
@@ -179,23 +221,29 @@ protected:
 
   void adjustMapData(nav_msgs::OccupancyGrid& map, const nav_msgs::MapMetaData& oldMapInfo) const;
 
-  inline bool mapChanged(const nav_msgs::MapMetaData& oldMapInfo, const nav_msgs::MapMetaData& newMapInfo){
+  inline bool mapChanged(const nav_msgs::MapMetaData& oldMapInfo, const nav_msgs::MapMetaData& newMapInfo) {
     return (    oldMapInfo.height != newMapInfo.height
-             || oldMapInfo.width !=newMapInfo.width
-             || oldMapInfo.origin.position.x != newMapInfo.origin.position.x
-             || oldMapInfo.origin.position.y != newMapInfo.origin.position.y);
+                || oldMapInfo.width != newMapInfo.width
+                || oldMapInfo.origin.position.x != newMapInfo.origin.position.x
+                || oldMapInfo.origin.position.y != newMapInfo.origin.position.y);
   }
 
   static std_msgs::ColorRGBA heightMapColor(double h);
   ros::NodeHandle m_nh;
+  ros::NodeHandle m_nh_private;
   ros::Publisher  m_markerPub, m_binaryMapPub, m_fullMapPub, m_pointCloudPub, m_collisionObjectPub, m_mapPub, m_cmapPub, m_fmapPub, m_fmarkerPub;
+  ros::Publisher  m_mapImagePub; // by kmHan
+  ros::Publisher  m_mapframedataPub; // by kmHan
+
   message_filters::Subscriber<sensor_msgs::PointCloud2>* m_pointCloudSub;
   tf::MessageFilter<sensor_msgs::PointCloud2>* m_tfPointCloudSub;
   ros::ServiceServer m_octomapBinaryService, m_octomapFullService, m_clearBBXService, m_resetService;
+
   tf::TransformListener m_tfListener;
+  boost::recursive_mutex m_config_mutex;
   dynamic_reconfigure::Server<OctomapServerConfig> m_reconfigureServer;
 
-  octomap::OcTree* m_octree;
+  OcTreeT* m_octree;
   octomap::KeyRay m_keyRay;  // temp storage for ray casting
   octomap::OcTreeKey m_updateBBXMin;
   octomap::OcTreeKey m_updateBBXMax;
@@ -214,10 +262,6 @@ protected:
   double m_res;
   unsigned m_treeDepth;
   unsigned m_maxTreeDepth;
-  double m_probHit;
-  double m_probMiss;
-  double m_thresMin;
-  double m_thresMax;
 
   double m_pointcloudMinZ;
   double m_pointcloudMaxZ;
@@ -233,6 +277,7 @@ protected:
   double m_groundFilterPlaneDistance;
 
   bool m_compressMap;
+  bool m_initConfig;
 
   // downprojected 2D map:
   bool m_incrementalUpdate;
@@ -242,6 +287,22 @@ protected:
   octomap::OcTreeKey m_paddedMinKey;
   unsigned m_multires2DScale;
   bool m_projectCompleteMap;
+  bool m_useColoredMap;
+
+  int32_t m_nNumPyrDownSample ;
+
+  // map image
+  nav_msgs::OccupancyGridConstPtr m_pgridmap;
+  gridmap_2d::GridMap2D m_oGridMap2D;
+  cv_bridge::CvImagePtr m_cb_ptr ;
+  Eigen::Matrix4f m_sensorToWorld;
+
+  std::ofstream m_ofs_servertime;
+  std::ofstream m_ofs_inserttime;
+  std::ofstream m_ofs_publishtime;
+
+public:
+  std::mutex m_mtxSensorToWorld;
 };
 }
 

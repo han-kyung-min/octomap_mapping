@@ -40,36 +40,51 @@
 #include <octomap_server/OctomapServer.h>
 
 #define USAGE "\nUSAGE: octomap_server <map.[bt|ot]>\n" \
-		"  map.bt: inital octomap 3D map file to read\n"
+        "  map.bt: inital octomap 3D map file to read\n"
 
 using namespace octomap_server;
 
 int main(int argc, char** argv){
   ros::init(argc, argv, "octomap_server");
-  std::string mapFilename("");
+  const ros::NodeHandle nh;
+  const ros::NodeHandle private_nh("~");
+  std::string mapFilename(""), mapFilenameParam("");
 
+  ros::WallTime start_, end_;
   if (argc > 2 || (argc == 2 && std::string(argv[1]) == "-h")){
     ROS_ERROR("%s", USAGE);
     exit(-1);
   }
 
-
-  OctomapServer server;
+  OctomapServer server(private_nh, nh);
   ros::spinOnce();
 
+  ROS_WARN("octomapserver initialized \n");
   if (argc == 2){
     mapFilename = std::string(argv[1]);
+  }
+
+  if (private_nh.getParam("map_file", mapFilenameParam)) {
+    if (mapFilename != "") {
+      ROS_WARN("map_file is specified by the argument '%s' and rosparam '%s'. now loads '%s'", mapFilename.c_str(), mapFilenameParam.c_str(), mapFilename.c_str());
+    } else {
+      mapFilename = mapFilenameParam;
+    }
+  }
+
+  if (mapFilename != "") {
     if (!server.openFile(mapFilename)){
       ROS_ERROR("Could not open file %s", mapFilename.c_str());
       exit(1);
     }
   }
 
-
-
-
   try{
+//	start_ = ros::WallTime::now();
     ros::spin();
+//    end_ = ros::WallTime::now();
+//    double execution_time = (end_ - start_).toNSec() * 1e-6;
+//    ROS_INFO_STREAM("Exectution time (ms): " << execution_time);
   }catch(std::runtime_error& e){
     ROS_ERROR("octomap_server exception: %s", e.what());
     return -1;
