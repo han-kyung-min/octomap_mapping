@@ -187,6 +187,11 @@ OctomapServer::OctomapServer(const ros::NodeHandle private_nh_, const ros::NodeH
   m_reconfigureServer.setCallback(f);
 
   m_keyboardSub	= m_nh.subscribe("keyboard/keyup", 1, &OctomapServer::keyboardCallback, this);
+
+  m_ofs_rayshootingtime.open("/home/hankm/catkin_ws/src/octomap_mapping/timing_test/rayshooting_time_0.txt");
+
+  m_uRoundCount = 0;
+  m_uSceneIdx = 0;
 }
 
 OctomapServer::~OctomapServer(){
@@ -346,7 +351,7 @@ void OctomapServer::insertCloudCallback(const sensor_msgs::PointCloud2::ConstPtr
     pc_nonground.header = pc.header;
   }
 
-
+  m_sensorToWorld = tf::Transform( sensorToWorldTf.getBasis(), sensorToWorldTf.getOrigin() );
   insertScan(sensorToWorldTf.getOrigin(), pc_ground, pc_nonground);
 
   double total_elapsed = (ros::WallTime::now() - startTime).toSec();
@@ -404,7 +409,8 @@ void OctomapServer::insertScan(const tf::Point& sensorOriginTf, const PCLPointCl
   {
     point3d point(it->x, it->y, it->z);
     // maxrange check
-    if ((m_maxRange < 0.0) || ((point - sensorOrigin).norm() <= m_maxRange) ) {
+    if ((m_maxRange < 0.0) || ((point - sensorOrigin).norm() <= m_maxRange) )
+    {
 
       // free cells
       if (m_octree->computeRayKeys(sensorOrigin, point, m_keyRay)){
@@ -439,26 +445,103 @@ void OctomapServer::insertScan(const tf::Point& sensorOriginTf, const PCLPointCl
     }
   }
 
-  if( m_keyboardCurr.code == 273 )
+  static uint32_t uBound = 50;
+  if( m_keyboardCurr.code == 273 & m_uRoundCount < uBound)
   {
 	  endTime = ros::WallTime::now();
 	  double rayShootingTime = (endTime - startTime).toNSec() * 1e-6   ;
 	  ROS_WARN("ray shooting time %f \n", rayShootingTime);
 	  ROS_WARN("keyboard code: %d", m_keyboardCurr.code);
 	  m_keyboardPrev = m_keyboardCurr;
+
+	  m_ofs_rayshootingtime << std::fixed << std::setprecision(4) << std::setw(9)
+	  						<< m_uRoundCount << " " << rayShootingTime << " " << std::endl;
+
+	  std::ofstream ofs_cell_info;
+	  std::string filename = "/home/hankm/catkin_ws/src/octomap_mapping/timing_test/cell_info_" + std::to_string(m_uSceneIdx);
+	  filename = filename + ".txt" ;
+	  ofs_cell_info.open(filename);
+
+	  // mark free cells only if not seen occupied in this cloud
+	  for(KeySet::iterator it = free_cells.begin(), end=free_cells.end(); it!= end; ++it)
+	  {
+		if (occupied_cells.find(*it) == occupied_cells.end())
+		{
+		  m_octree->updateNode(*it, false);
+		  OcTreeNode* leaf = m_octree->search(*it);
+		  ofs_cell_info << (*it).k[0] << " " << (*it).k[1] << " " << (*it).k[2] << " " << leaf->hasChildren() << " " << std::endl;
+		}
+	  }
+
+	  // now mark all occupied cells:
+	  for (KeySet::iterator it = occupied_cells.begin(), end=occupied_cells.end(); it!= end; it++)
+	  {
+		m_octree->updateNode(*it, true);
+		OcTreeNode* leaf = m_octree->search(*it);
+		ofs_cell_info << (*it).k[0] << " " << (*it).k[1] << " " << (*it).k[2] << " " << leaf->hasChildren() << " " << std::endl;
+	  }
+	  ofs_cell_info.close();
+
+	  m_uRoundCount++;
   }
 
+  else
+  {
+	  // mark free cells only if not seen occupied in this cloud
+	  for(KeySet::iterator it = free_cells.begin(), end=free_cells.end(); it!= end; ++it){
+		if (occupied_cells.find(*it) == occupied_cells.end())
+		{
+		  m_octree->updateNode(*it, false);
+		}
+	  }
 
-  // mark free cells only if not seen occupied in this cloud
-  for(KeySet::iterator it = free_cells.begin(), end=free_cells.end(); it!= end; ++it){
-    if (occupied_cells.find(*it) == occupied_cells.end()){
-      m_octree->updateNode(*it, false);
-    }
+	  // now mark all occupied cells:
+	  for (KeySet::iterator it = occupied_cells.begin(), end=occupied_cells.end(); it!= end; it++) {
+		m_octree->updateNode(*it, true);
+	  }
   }
 
-  // now mark all occupied cells:
-  for (KeySet::iterator it = occupied_cells.begin(), end=occupied_cells.end(); it!= end; it++) {
-    m_octree->updateNode(*it, true);
+  if(m_uRoundCount >= uBound)
+  {
+	  // cam pose
+	  std::string filename = "/home/hankm/catkin_ws/src/octomap_mapping/timing_test/campose_"+std::to_string(m_uSceneIdx);
+	  filename = filename + ".txt";
+	  std::ofstream ofs_campose ;
+	  ofs_campose.open(filename) ;
+	  ofs_campose << m_sensorToWorld.getRotation()[0] << " " <<
+			    	 m_sensorToWorld.getRotation()[1] << " " <<
+					 m_sensorToWorld.getRotation()[2] << " " <<
+				     m_sensorToWorld.getRotation()[3] << " " <<
+				     m_sensorToWorld.getOrigin()[0] << " " <<
+					 m_sensorToWorld.getOrigin()[1] << " " <<
+					 m_sensorToWorld.getOrigin()[2] << std::endl;
+	  ofs_campose.close();
+
+	  // point cloud
+	  filename = "/home/hankm/catkin_ws/src/octomap_mapping/timing_test/point_xyz_"+std::to_string(m_uSceneIdx);
+	  filename = filename + ".txt";
+	  std::ofstream ofs_point ;
+	  ofs_point.open(filename) ;
+
+	  for (PCLPointCloud::const_iterator it = nonground.begin(); it != nonground.end(); ++it)
+	  {
+	    point3d point(it->x, it->y, it->z);
+	    // maxrange check
+	    if ((m_maxRange < 0.0) || ((point - sensorOrigin).norm() <= m_maxRange) )
+	    {
+	    	ofs_point << point.x() << " " << point.y() << " " << point.z() << std::endl;
+	    }
+	  }
+	  ofs_point.close();
+
+	  m_uRoundCount = 0;
+	  m_uSceneIdx++;
+
+	  filename = "/home/hankm/catkin_ws/src/octomap_mapping/timing_test/rayshooting_time_"+std::to_string(m_uSceneIdx);
+	  filename = filename + ".txt";
+	  m_ofs_rayshootingtime.close();
+	  m_ofs_rayshootingtime.open(filename);
+	  m_keyboardCurr.code = 274;
   }
 
   // TODO: eval lazy+updateInner vs. proper insertion

@@ -266,8 +266,15 @@ protected:
   bool m_projectCompleteMap;
   bool m_useColoredMap;
 
+  // by kmHan
   keyboard::Key m_keyboardCurr;
   keyboard::Key m_keyboardPrev;
+
+  tf::Transform m_sensorToWorld;
+
+  std::ofstream m_ofs_rayshootingtime;
+  uint32_t m_uRoundCount ;
+  uint32_t m_uSceneIdx ;
 };
 }
 
