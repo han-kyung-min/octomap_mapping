@@ -270,7 +270,8 @@ protected:
   keyboard::Key m_keyboardCurr;
   keyboard::Key m_keyboardPrev;
 
-  tf::Transform m_sensorToWorld;
+  //tf::Transform m_sensorToWorld;
+  Eigen::Matrix4f m_sensorToWorld;
 
   std::ofstream m_ofs_rayshootingtime;
   uint32_t m_uRoundCount ;

@@ -351,7 +351,8 @@ void OctomapServer::insertCloudCallback(const sensor_msgs::PointCloud2::ConstPtr
     pc_nonground.header = pc.header;
   }
 
-  m_sensorToWorld = tf::Transform( sensorToWorldTf.getBasis(), sensorToWorldTf.getOrigin() );
+  //m_sensorToWorld = tf::Transform( sensorToWorldTf.getBasis(), sensorToWorldTf.getOrigin() );
+  m_sensorToWorld = sensorToWorld ;
   insertScan(sensorToWorldTf.getOrigin(), pc_ground, pc_nonground);
 
   double total_elapsed = (ros::WallTime::now() - startTime).toSec();
@@ -508,13 +509,16 @@ void OctomapServer::insertScan(const tf::Point& sensorOriginTf, const PCLPointCl
 	  filename = filename + ".txt";
 	  std::ofstream ofs_campose ;
 	  ofs_campose.open(filename) ;
-	  ofs_campose << m_sensorToWorld.getRotation()[0] << " " <<
-			    	 m_sensorToWorld.getRotation()[1] << " " <<
-					 m_sensorToWorld.getRotation()[2] << " " <<
-				     m_sensorToWorld.getRotation()[3] << " " <<
-				     m_sensorToWorld.getOrigin()[0] << " " <<
-					 m_sensorToWorld.getOrigin()[1] << " " <<
-					 m_sensorToWorld.getOrigin()[2] << std::endl;
+//	  ofs_campose << m_sensorToWorld.getRotation()[0] << " " <<
+//			    	 m_sensorToWorld.getRotation()[1] << " " <<
+//					 m_sensorToWorld.getRotation()[2] << " " <<
+//				     m_sensorToWorld.getRotation()[3] << " " <<
+//				     m_sensorToWorld.getOrigin()[0] << " " <<
+//					 m_sensorToWorld.getOrigin()[1] << " " <<
+//					 m_sensorToWorld.getOrigin()[2] << std::endl;
+	  ofs_campose << m_sensorToWorld << '\n';
+
+
 	  ofs_campose.close();
 
 	  // point cloud
