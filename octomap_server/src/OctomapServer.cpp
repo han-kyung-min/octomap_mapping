@@ -459,7 +459,7 @@ void OctomapServer::insertScan(const tf::Point& sensorOriginTf, const PCLPointCl
 	  						<< m_uRoundCount << " " << rayShootingTime << " " << std::endl;
 
 	  std::ofstream ofs_cell_info;
-	  std::string filename = "/home/hankm/catkin_ws/src/octomap_mapping/timing_test/cell_info_" + std::to_string(m_uSceneIdx);
+	  std::string filename = "/home/hankm/results/timing_test/cell_info_" + std::to_string(m_uSceneIdx);
 	  filename = filename + ".txt" ;
 	  ofs_cell_info.open(filename);
 
@@ -505,7 +505,7 @@ void OctomapServer::insertScan(const tf::Point& sensorOriginTf, const PCLPointCl
   if(m_uRoundCount >= uBound)
   {
 	  // cam pose
-	  std::string filename = "/home/hankm/catkin_ws/src/octomap_mapping/timing_test/campose_"+std::to_string(m_uSceneIdx);
+	  std::string filename = "/home/hankm/results/timing_test/campose_"+std::to_string(m_uSceneIdx);
 	  filename = filename + ".txt";
 	  std::ofstream ofs_campose ;
 	  ofs_campose.open(filename) ;
@@ -522,7 +522,7 @@ void OctomapServer::insertScan(const tf::Point& sensorOriginTf, const PCLPointCl
 	  ofs_campose.close();
 
 	  // point cloud
-	  filename = "/home/hankm/catkin_ws/src/octomap_mapping/timing_test/point_xyz_"+std::to_string(m_uSceneIdx);
+	  filename = "/home/hankm/results/timing_test/point_xyz_"+std::to_string(m_uSceneIdx);
 	  filename = filename + ".txt";
 	  std::ofstream ofs_point ;
 	  ofs_point.open(filename) ;
