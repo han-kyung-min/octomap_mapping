@@ -188,7 +188,7 @@ OctomapServer::OctomapServer(const ros::NodeHandle private_nh_, const ros::NodeH
 
   m_keyboardSub	= m_nh.subscribe("keyboard/keyup", 1, &OctomapServer::keyboardCallback, this);
 
-  m_ofs_rayshootingtime.open("/home/hankm/catkin_ws/src/octomap_mapping/timing_test/rayshooting_time_0.txt");
+  m_ofs_rayshootingtime.open("/home/hankm/results/timing_test/rayshooting_time_0.txt");
 
   m_uRoundCount = 0;
   m_uSceneIdx = 0;
@@ -541,7 +541,7 @@ void OctomapServer::insertScan(const tf::Point& sensorOriginTf, const PCLPointCl
 	  m_uRoundCount = 0;
 	  m_uSceneIdx++;
 
-	  filename = "/home/hankm/catkin_ws/src/octomap_mapping/timing_test/rayshooting_time_"+std::to_string(m_uSceneIdx);
+	  filename = "/home/hankm/results/timing_test/rayshooting_time_"+std::to_string(m_uSceneIdx);
 	  filename = filename + ".txt";
 	  m_ofs_rayshootingtime.close();
 	  m_ofs_rayshootingtime.open(filename);
