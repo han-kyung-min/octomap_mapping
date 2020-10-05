@@ -802,8 +802,9 @@ void OctomapServer::publishAll(const ros::Time& rostime){
 
 
   double total_elapsed = (ros::WallTime::now() - startTime).toSec();
-  ROS_DEBUG("Map publishing in OctomapServer took %f sec", total_elapsed);
-
+  //ROS_DEBUG("Map publishing in OctomapServer took %f sec", total_elapsed);
+  ROS_WARN("Map publishing in OctomapServer took %f sec", total_elapsed);
+  ROS_WARN("octree size: %d", m_octree->size() );
 }
 
 
@@ -856,6 +857,9 @@ bool OctomapServer::clearBBXSrv(BBXSrv::Request& req, BBXSrv::Response& resp){
 }
 
 bool OctomapServer::resetSrv(std_srvs::Empty::Request& req, std_srvs::Empty::Response& resp) {
+
+
+	ROS_ERROR("Clear octomap service called \n");
   visualization_msgs::MarkerArray occupiedNodesVis;
   occupiedNodesVis.markers.resize(m_treeDepth +1);
   ros::Time rostime = ros::Time::now();
