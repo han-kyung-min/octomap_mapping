@@ -1295,9 +1295,9 @@ bool OctomapServer::resetSrv(std_srvs::Empty::Request& req, std_srvs::Empty::Res
   m_oGridMap2D.reset();
   m_oGridMap2D.downSampleGridmap();
 
-  cv::namedWindow("downsampled 2d gridmap", 1);
-  cv::imshow("downsampled 2d gridmap", m_oGridMap2D.gridMapDownSampled() );
-  cv::waitKey(10);
+//  cv::namedWindow("downsampled 2d gridmap", 1);
+//  cv::imshow("downsampled 2d gridmap", m_oGridMap2D.gridMapDownSampled() );
+//  cv::waitKey(10);
 
 
   m_octree->clear();
@@ -1636,9 +1636,9 @@ void OctomapServer::handlePostNodeTraversal(const ros::Time& rostime){
     m_mapframedataPub.publish(mapframe_data);
     //m_mapImagePub.publish( img_msg ); //kmHan
 
-    cv::namedWindow("downsampled 2d gridmap", 1);
-    cv::imshow("downsampled 2d gridmap", m_oGridMap2D.gridMapDownSampled() );
-    cv::waitKey(10);
+//    cv::namedWindow("downsampled 2d gridmap", 1);
+//    cv::imshow("downsampled 2d gridmap", m_oGridMap2D.gridMapDownSampled() );
+//    cv::waitKey(10);
     //cv::imwrite("/home/hankm/catkin_ws/src/gridmap_2d/images/gridmap.png",m_oGridMap2D.binaryMapUnknownPaddedFlip());
   }
 }
