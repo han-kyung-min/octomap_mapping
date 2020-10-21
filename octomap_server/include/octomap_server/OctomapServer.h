@@ -298,6 +298,8 @@ protected:
   Eigen::Matrix4f m_sensorToWorld;
 
 
+  std::ofstream m_ofs;
+
 public:
   std::mutex m_mtxSensorToWorld;
 };

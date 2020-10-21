@@ -201,6 +201,7 @@ ROS_WARN("res: %f", m_res);
   m_nh_private.setParam("gridmap/width",  m_oGridMap2D.getGridMapWidth() );
   m_nh_private.setParam("gridmap/height", m_oGridMap2D.getGridMapHeight());  // width of down sampled gridmap
 
+m_ofs.open("/home/hankm/catkin_wsw/insert_scan_time.txt");
 }
 
 OctomapServer::~OctomapServer(){
@@ -381,10 +382,16 @@ void OctomapServer::insertCloudCallback(const sensor_msgs::PointCloud2::ConstPtr
   }
 
   KeySet free_cells, occupied_cells;
+
+startTime = ros::WallTime::now();
+
   insertScan(sensorToWorldTf.getOrigin(), pc_ground, pc_nonground, free_cells, occupied_cells);
 
-
   publishOctomap( cloud->header.stamp, sensorToWorld, free_cells, occupied_cells );
+
+double total_elapsed = (ros::WallTime::now() - startTime).toSec();
+ROS_ERROR("\n insertScan + publish time %f \n", total_elapsed);
+
 
   free_cells.clear();
   occupied_cells.clear();
@@ -564,6 +571,9 @@ void OctomapServer::insertScan(const tf::Point& sensorOriginTf, const PCLPointCl
     }
   }
 
+ros::WallTime startTime, endTime;
+startTime = ros::WallTime::now();
+
   // all other points: free on ray, occupied on endpoint:
 const float maxz_thr = 1.1;
 const float minz_thr = 0.9;
@@ -610,6 +620,12 @@ const float minz_thr = 0.9;
     }
   }
 
+
+double total_elapsed = (ros::WallTime::now() - startTime).toSec();
+ROS_ERROR("\n compute ray time %f \n", total_elapsed);
+
+startTime = ros::WallTime::now() ;
+
   // mark free cells only if not seen occupied in this cloud
   for(KeySet::iterator it = free_cells.begin(), end=free_cells.end(); it!= end; ++it){
     if (occupied_cells.find(*it) == occupied_cells.end()){
@@ -621,6 +637,10 @@ const float minz_thr = 0.9;
   for (KeySet::iterator it = occupied_cells.begin(), end=occupied_cells.end(); it!= end; it++) {
     m_octree->updateNode(*it, true);
   }
+
+
+total_elapsed = (ros::WallTime::now() - startTime).toSec();
+ROS_ERROR("\n octree update %f \n", total_elapsed);
 
 
   // TODO: eval lazy+updateInner vs. proper insertion
