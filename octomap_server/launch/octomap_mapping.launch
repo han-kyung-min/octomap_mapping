@@ -9,6 +9,7 @@
 <launch>
     <!--arg name="use_sim_time"                value="false"/--> <!--by kmHan-->
     <!--param name="use_sim_time" value="true"/--> <!--by kmHan-->
+    <arg name="namespace" default=""/>
 	<node pkg="octomap_server" type="octomap_server_node" name="octomap_server">
 
         <param name="incremental_2D_projection" value="true" />
@@ -25,7 +26,9 @@
 		
 		<!-- data source to integrate (PointCloud2) -->
 		<!--remap from="cloud_in" to="/narrow_stereo/points_filtered2" /-->
-		<remap from="/cloud_in" to="/gt_point_cloud_xyz" />
+		<remap from="/$(arg namespace)/cloud_in" to="/$(arg namespace)/gt_point_cloud_xyz" />
+<!--        <remap from="tf"        to="/$(arg namespace)/tf" />
+        <remap from="tf_static" to="/$(arg namespace)/tf_static" />-->
     </node>
     
     <!-- Publishes the voxel grid to rviz for display -->

@@ -201,7 +201,7 @@ ROS_WARN("res: %f", m_res);
   m_nh_private.setParam("gridmap/width",  m_oGridMap2D.getGridMapWidth() );
   m_nh_private.setParam("gridmap/height", m_oGridMap2D.getGridMapHeight());  // width of down sampled gridmap
 
-m_ofs.open("/home/hankm/catkin_wsw/insert_scan_time.txt");
+//m_ofs.open("/home/hankm/catkin_wsw/insert_scan_time.txt");
 }
 
 OctomapServer::~OctomapServer(){
