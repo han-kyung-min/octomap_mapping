@@ -1,0 +1,32 @@
+/*
+ * classify_cell_info.cpp
+ *
+ *  Created on: Oct 20, 2020
+ *      Author: hankm
+ */
+
+
+#include "OctomapTest.hpp"
+
+using namespace octomap_test;
+
+int main(int argc, char** argv)
+{
+
+	  if (argc > 2 || (argc == 2 && std::string(argv[1]) == "-h")){
+	    printf("usage %s <datpath> <sceneidx>", argv[0] );
+	    exit(-1);
+	  }
+
+	std::stringstream ss(argv[2]);
+	uint32_t uSceneIdx = 0;
+	ss >> uSceneIdx ;
+
+	OctomapTest octest(argv[1], uSceneIdx);
+
+	octest.save_occ_cells() ;
+	octest.save_free_cells() ;
+
+	return 0;
+}
+

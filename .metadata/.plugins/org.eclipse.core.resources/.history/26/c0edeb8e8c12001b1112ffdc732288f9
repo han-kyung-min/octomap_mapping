@@ -1,0 +1,152 @@
+/*
+ * OctomapTest.cpp
+ *
+ *  Created on: Oct 20, 2020
+ *      Author: hankm
+ */
+
+
+
+#include "OctomapTest.hpp"
+
+using namespace octomap;
+using octomap_msgs::Octomap;
+
+bool is_equal (double a, double b, double epsilon = 1.0e-7)
+{
+    return std::abs(a - b) < epsilon;
+}
+
+namespace octomap_test{
+
+OctomapTest::OctomapTest(std::string strpath)
+:
+  m_octree(NULL),
+  m_res(0.05),
+  m_treeDepth(0),
+  m_maxTreeDepth(0),
+  m_compressMap(true),
+  m_str_path(strpath)
+{
+  double probHit, probMiss, thresMin, thresMax;
+  // initialize octomap object & params
+  m_octree = new OcTreeT(m_res);
+  m_octree->setProbHit(probHit);
+  m_octree->setProbMiss(probMiss);
+  m_octree->setClampingThresMin(thresMin);
+  m_octree->setClampingThresMax(thresMax);
+  m_treeDepth = m_octree->getTreeDepth();
+  m_maxTreeDepth = m_treeDepth;
+
+ // m_pPtCloud = new PCLPointCloud ;
+
+  m_ifs_cellinfo.open( "/home/hankm/Results/timing_test/data002/view6/cell_info_6.txt");
+  m_ifs_ptcxyz.open( "/home/hankm/Results/timing_test/data002/view6/point_xyz_6.txt");
+}
+
+OctomapTest::~OctomapTest()
+{
+	//m_pPtCloud->clear();
+
+  if (m_octree){
+    delete m_octree;
+    m_octree = NULL;
+  }
+}
+
+bool OctomapTest::openFile(const std::string& filename)
+{
+  if (filename.length() <= 3)
+    return false;
+
+  std::string suffix = filename.substr(filename.length()-3, 3);
+  if (suffix== ".bt"){
+    if (!m_octree->readBinary(filename)){
+      return false;
+    }
+  } else if (suffix == ".ot"){
+    AbstractOcTree* tree = AbstractOcTree::read(filename);
+    if (!tree){
+      return false;
+    }
+    if (m_octree){
+      delete m_octree;
+      m_octree = NULL;
+    }
+    m_octree = dynamic_cast<OcTreeT*>(tree);
+    if (!m_octree){
+      ROS_ERROR("Could not read OcTree in file, currently there are no other types supported in .ot");
+      return false;
+    }
+
+  } else{
+    return false;
+  }
+
+  ROS_INFO("Octomap file %s loaded (%zu nodes).", filename.c_str(),m_octree->size());
+
+  m_treeDepth = m_octree->getTreeDepth();
+  m_maxTreeDepth = m_treeDepth;
+  m_res = m_octree->getResolution();
+
+  double minX, minY, minZ;
+  double maxX, maxY, maxZ;
+  m_octree->getMetricMin(minX, minY, minZ);
+  m_octree->getMetricMax(maxX, maxY, maxZ);
+
+  m_updateBBXMin[0] = m_octree->coordToKey(minX);
+  m_updateBBXMin[1] = m_octree->coordToKey(minY);
+  m_updateBBXMin[2] = m_octree->coordToKey(minZ);
+
+  m_updateBBXMax[0] = m_octree->coordToKey(maxX);
+  m_updateBBXMax[1] = m_octree->coordToKey(maxY);
+  m_updateBBXMax[2] = m_octree->coordToKey(maxZ);
+
+  return true;
+}
+
+bool OctomapTest::loadptc( )
+{
+	std::string strline;
+	while( std::getline(m_ifs_ptcxyz, strline) )
+	{
+		std::stringstream ss(strline);
+		double x,y,z;
+		PCLPoint pt(x,y,z);
+		m_PtCloud.push_back( pt );
+	}
+}
+
+bool OctomapTest::loadcellinfo( )
+{
+	// mark free cells only if not seen occupied in this cloud
+
+	std::string strline;
+	while (std::getline(m_ifs_cellinfo, strline) )
+	{
+		int32_t k0, k1, k2, dummy;
+		std::stringstream ss(strline);
+		ss >> k0 >> k1 >> k2 >> dummy;
+
+		OcTreeKey key(k0,k1,k2);
+		point3d pt = m_octree->keyToCoord(key) ;
+	}
+}
+
+bool OctomapTest::save_occ_cells()
+{
+	loadptc() ;
+	std::string fname = m_str_path + std::to_string(m_uSceneIdx);;
+	m_ofs_occ_cellinfo.open(fname);
+
+	for(size_t uIdx=0; uIdx < m_PtCloud.size(); uIdx++)
+	{
+		point3d xyz( m_PtCloud[uIdx].x, m_PtCloud[uIdx].y, m_PtCloud[uIdx].z );
+		OcTreeKey okey = m_octree->coordToKey(xyz) ;
+		m_ofs_occ_cellinfo << okey[0] << " " << okey[1] << " " << okey[0] << endl;
+	}
+
+}
+
+}
+
