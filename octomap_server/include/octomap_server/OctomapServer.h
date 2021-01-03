@@ -302,6 +302,7 @@ protected:
 
 public:
   std::mutex m_mtxSensorToWorld;
+  std::mutex m_mtxOctree;
 };
 }
 
