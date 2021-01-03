@@ -36,8 +36,8 @@
 #include <nav_msgs/OccupancyGrid.h>
 #include <std_msgs/ColorRGBA.h>
 
-#include "../../../gridmap_2d/include/gridmap_2d/GridMap2D.h"
-#include <gridmap_2d/GridMap2D.h>
+#include "../../../../gridmap_2d/include/gridmap_2d/GridMap2D.h"
+//#include <gridmap_2d/GridMap2D.h>
 #include <cv_bridge/cv_bridge.h>
 #include <tf/transform_listener.h>
 #include <sensor_msgs/Image.h>
@@ -201,7 +201,7 @@ protected:
 
   /// updates the downprojected 2D map as either occupied or free
   virtual void update2DMap(const OcTreeT::iterator& it, bool occupied);
-  virtual void update2DGrid(const octomap::OcTreeKey& it_, bool occupied);
+  //virtual void update2DGrid(const octomap::OcTreeKey& it_, bool occupied);
 
   inline unsigned mapIdx(int i, int j) const {
     return m_gridmap.info.width * j + i;
@@ -297,12 +297,12 @@ protected:
   cv_bridge::CvImagePtr m_cb_ptr ;
   Eigen::Matrix4f m_sensorToWorld;
 
-  std::ofstream m_ofs_servertime;
-  std::ofstream m_ofs_inserttime;
-  std::ofstream m_ofs_publishtime;
+
+  std::ofstream m_ofs;
 
 public:
   std::mutex m_mtxSensorToWorld;
+  std::mutex m_mtxOctree;
 };
 }
 

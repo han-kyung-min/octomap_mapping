@@ -1,0 +1,79 @@
+/*
+ * OctomapTest.hpp
+ *
+ *  Created on: Oct 20, 2020
+ *      Author: hankm
+ */
+
+#ifndef OCTOMAPTEST_HPP_
+#define OCTOMAPTEST_HPP_
+
+#include <visualization_msgs/MarkerArray.h>
+
+#include <pcl/point_types.h>
+#include <pcl/conversions.h>
+#include <pcl_ros/transforms.h>
+#include <pcl/sample_consensus/method_types.h>
+#include <pcl/sample_consensus/model_types.h>
+#include <pcl/segmentation/sac_segmentation.h>
+#include <pcl/io/pcd_io.h>
+#include <pcl/filters/extract_indices.h>
+#include <pcl/filters/passthrough.h>
+#include <pcl_conversions/pcl_conversions.h>
+
+
+#include <tf/transform_listener.h>
+#include <tf/message_filter.h>
+#include <message_filters/subscriber.h>
+
+#include <octomap/octomap.h>
+#include <octomap/OcTreeKey.h>
+
+
+namespace octomap_test
+{
+class OctomapTest
+{
+
+public:
+	typedef pcl::PointXYZ PCLPoint;
+	typedef pcl::PointCloud<pcl::PointXYZ> PCLPointCloud;
+	typedef octomap::OcTree OcTreeT;
+
+	OctomapTest( std::string strpath, uint32_t uSceneIdx );
+	virtual ~OctomapTest();
+
+	bool openFile(const std::string& filename);
+	void loadptc( );
+	void loadcellinfo( ) ;
+	void save_occ_cells( ) ;
+	void save_free_cells( ) ;
+
+private:
+
+	OcTreeT* m_octree;
+	octomap::KeyRay m_keyRay;  // temp storage for ray casting
+	octomap::OcTreeKey m_updateBBXMin;
+	octomap::OcTreeKey m_updateBBXMax;
+
+	octomap::KeySet m_free_cells, m_occupied_cells;
+
+	double m_res;
+	unsigned m_treeDepth;
+	unsigned m_maxTreeDepth;
+	uint32_t m_uSceneIdx ;
+
+	bool m_compressMap;
+
+	std::string m_str_path ;
+	std::ifstream m_ifs_cellinfo ;
+	std::ifstream m_ifs_ptcxyz ;
+	std::ofstream m_ofs_occ_cellinfo ;
+	std::ofstream m_ofs_free_cellinfo;
+
+	pcl::PointCloud<pcl::PointXYZ> m_PtCloud ;
+};
+
+}
+
+#endif /* OCTOMAPTEST_HPP_ */
