@@ -1640,7 +1640,7 @@ void OctomapServer::handlePostNodeTraversal(const ros::Time& rostime){
     //m_mapPub.publish(m_gridmap); // kmHan disabled to speedup
 
     // flip gridmap followed by downsampling
-    m_oGridMap2D.setBinaryMapUnknownPaddedFlip();
+    // m_oGridMap2D.setBinaryMapUnknownPaddedFlip();
     m_oGridMap2D.downSampleGridmap();
 
     octomap_server::mapframedata mapframe_data ;
@@ -1662,7 +1662,7 @@ void OctomapServer::handlePostNodeTraversal(const ros::Time& rostime){
     //m_mapImagePub.publish( img_msg ); //kmHan
 
 //	cv::namedWindow("downsampled 2d gridmap", 1);
-//	cv::imshow("downsampled 2d gridmap", m_oGridMap2D.binaryMapUnknownPadded() );
+//	cv::imshow("downsampled 2d gridmap", m_oGridMap2D.binaryMapUnknownPadded_wRobot() );
 //	//cv::imshow("downsampled 2d gridmap", m_oGridMap2D.gridMapDownSampled() );
 //	cv::waitKey(10);
 
