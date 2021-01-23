@@ -1,0 +1,12 @@
+15:17:21 **** Build of configuration Debug for project octomap_tests ****
+make all 
+Building file: ../src/OctomapTest.cpp
+Invoking: GCC C++ Compiler
+g++ -I/opt/ros/noetic/include -I/usr/local/include/pcl-1.9 -include/opt/ros/noetic/include -include/usr/local/include/pcl-1.9 -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"src/OctomapTest.d" -MT"src/OctomapTest.o" -o "src/OctomapTest.o" "../src/OctomapTest.cpp"
+cc1plus: fatal error: /opt/ros/noetic/include: No such file or directory
+compilation terminated.
+make: *** [src/subdir.mk:23: src/OctomapTest.o] Error 1
+"make all" terminated with exit code 2. Build might be incomplete.
+
+15:17:21 Build Failed. 1 errors, 0 warnings. (took 169ms)
+
