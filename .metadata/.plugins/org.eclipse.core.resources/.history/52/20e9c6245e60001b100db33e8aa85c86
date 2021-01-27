@@ -195,8 +195,9 @@ ROS_WARN("res: %f", m_res);
   cv::FileStorage fs;
   fs.open("/home/hankm/catkin_ws/src/tesse-ros-bridge/config/training_config.yaml", cv::FileStorage::READ);
 
+  ROS_WARN("num downsample: %s \n ", fs["train_config"] );
   fs["n_gridmap_downsample"] >> m_nNumPyrDownSample ;
-  ROS_WARN("num downsample: %d \n ", m_nNumPyrDownSample );
+  ROS_WARN("num downsample: %s \n ", m_nNumPyrDownSample );
 
   m_nh_private.param("num_pyrdownsample", m_nNumPyrDownSample);
 

@@ -194,9 +194,7 @@ ROS_WARN("res: %f", m_res);
 
   cv::FileStorage fs;
   fs.open("/home/hankm/catkin_ws/src/tesse-ros-bridge/config/training_config.yaml", cv::FileStorage::READ);
-
   fs["n_gridmap_downsample"] >> m_nNumPyrDownSample ;
-  ROS_WARN("num downsample: %d \n ", m_nNumPyrDownSample );
 
   m_nh_private.param("num_pyrdownsample", m_nNumPyrDownSample);
 
@@ -1774,7 +1772,7 @@ void OctomapServer::reconfigureCallback(octomap_server::OctomapServerConfig& con
     m_filterGroundPlane         = config.filter_ground;
     m_compressMap               = config.compress_map;
     m_incrementalUpdate         = config.incremental_2D_projection;
-    //m_nNumPyrDownSample			= config.num_pyrdownsample;		//	kmHan
+    m_nNumPyrDownSample			= config.num_pyrdownsample;		//	kmHan
 
     // Parameters with a namespace require an special treatment at the beginning, as dynamic reconfigure
     // will overwrite them because the server is not able to match parameters' names.
