@@ -1,4 +1,4 @@
-15:17:21 **** Build of configuration Debug for project octomap_server ****
+14:37:05 **** Build of configuration Debug for project octomap_server ****
 make all 
 Building file: ../src/OctomapServer.cpp
 Invoking: GCC C++ Compiler
@@ -10,5 +10,5 @@ compilation terminated.
 make: *** [src/subdir.mk:44: src/OctomapServer.o] Error 1
 "make all" terminated with exit code 2. Build might be incomplete.
 
-15:17:21 Build Failed. 2 errors, 0 warnings. (took 167ms)
+14:37:05 Build Failed. 2 errors, 0 warnings. (took 167ms)
 

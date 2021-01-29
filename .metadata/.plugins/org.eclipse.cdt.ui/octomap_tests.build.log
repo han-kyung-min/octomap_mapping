@@ -1,4 +1,4 @@
-15:17:21 **** Build of configuration Debug for project octomap_tests ****
+14:37:05 **** Build of configuration Debug for project octomap_tests ****
 make all 
 Building file: ../src/OctomapTest.cpp
 Invoking: GCC C++ Compiler
@@ -8,5 +8,5 @@ compilation terminated.
 make: *** [src/subdir.mk:23: src/OctomapTest.o] Error 1
 "make all" terminated with exit code 2. Build might be incomplete.
 
-15:17:21 Build Failed. 1 errors, 0 warnings. (took 169ms)
+14:37:05 Build Failed. 1 errors, 0 warnings. (took 168ms)
 
