@@ -193,7 +193,7 @@ ROS_WARN("res: %f", m_res);
   m_reconfigureServer.setCallback(f);
 
   cv::FileStorage fs;
-  fs.open("/home/hankm/catkin_ws/src/tesse-ros-bridge/config/training_config.yaml", cv::FileStorage::READ);
+  fs.open("~/catkin_ws/src/tesse-ros-bridge/config/training_config.yaml", cv::FileStorage::READ);
 
   fs["n_gridmap_downsample"] >> m_nNumPyrDownSample ;
   ROS_WARN("num downsample: %d \n ", m_nNumPyrDownSample );
