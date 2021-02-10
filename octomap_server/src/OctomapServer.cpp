@@ -1245,7 +1245,8 @@ void OctomapServer::publishOctomap(const ros::Time& rostime, const Eigen::Matrix
 	}
 
 // set robot pose
-	m_oGridMap2D.SetRobot( sensorToWorld, m_res );
+	m_oGridMap2D.RotateMap( sensorToWorld, m_res );
+	m_oGridMap2D.SetRobot( );
 
 // publish # of cell changes
 	int32_t nNumCellCoverage = m_oGridMap2D.GetNumCellCoverageAtCurrStep();
@@ -1667,10 +1668,10 @@ void OctomapServer::handlePostNodeTraversal(const ros::Time& rostime){
     m_mapframedataPub.publish(mapframe_data);
     //m_mapImagePub.publish( img_msg ); //kmHan
 
-//	cv::namedWindow("downsampled 2d gridmap", 1);
-//	cv::imshow("downsampled 2d gridmap", m_oGridMap2D.binaryMapUnknownPadded_wRobot() );
-////	//cv::imshow("downsampled 2d gridmap", m_oGridMap2D.gridMapDownSampled() );
-//	cv::waitKey(10);
+	cv::namedWindow("downsampled 2d gridmap", 1);
+	cv::imshow("downsampled 2d gridmap", m_oGridMap2D.binaryMapUnknownPadded_wRobot() );
+//	//cv::imshow("downsampled 2d gridmap", m_oGridMap2D.gridMapDownSampled() );
+	cv::waitKey(10);
 
     //cv::imwrite("/home/hankm/catkin_ws/src/gridmap_2d/images/gridmap.png",m_oGridMap2D.gridMapDownSampled());
     //cv::imwrite("/home/hankm/catkin_ws/src/gridmap_2d/images/binaryMapUnknownPadded.png",m_oGridMap2D.binaryMapUnknownPadded());
