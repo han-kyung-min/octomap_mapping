@@ -1245,8 +1245,10 @@ void OctomapServer::publishOctomap(const ros::Time& rostime, const Eigen::Matrix
 	}
 
 // set robot pose
+	//m_oGridMap2D.RotateMap( sensorToWorld, m_res );
+
+	m_oGridMap2D.SetRobot(sensorToWorld, m_res);
 	m_oGridMap2D.RotateMap( sensorToWorld, m_res );
-	m_oGridMap2D.SetRobot( );
 
 // publish # of cell changes
 	int32_t nNumCellCoverage = m_oGridMap2D.GetNumCellCoverageAtCurrStep();
