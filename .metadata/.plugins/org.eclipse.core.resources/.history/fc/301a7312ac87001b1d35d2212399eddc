@@ -1,0 +1,67 @@
+/*
+ * frontier_detector_node.cpp
+ *
+ *  Created on: Mar 18, 2021
+ *      Author: hankm
+ */
+
+#include <opencv2/core/core.hpp>
+#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
+#include <octomap_server/mapframedata.h>
+
+#include <ros/ros.h>
+#include <ros/console.h>
+#include <cv_bridge/cv_bridge.h>
+
+#include <FrontierDetector.hpp>
+
+int main(int argc, char** argv){
+  ros::init(argc, argv, "frontier_detector");
+  const ros::NodeHandle nh;
+  const ros::NodeHandle private_nh("~");
+
+  ros::WallTime start_, end_;
+  if (argc > 2 || (argc == 2 && std::string(argv[1]) == "-h")){
+    ROS_ERROR("%s", USAGE);
+    exit(-1);
+  }
+
+  FrontierDetector front_detector(private_nh, nh);
+  ros::spinOnce();
+
+  ROS_WARN("octomapserver initialized \n");
+  if (argc == 2){
+    mapFilename = std::string(argv[1]);
+  }
+
+  if (private_nh.getParam("map_file", mapFilenameParam)) {
+    if (mapFilename != "") {
+      ROS_WARN("map_file is specified by the argument '%s' and rosparam '%s'. now loads '%s'", mapFilename.c_str(), mapFilenameParam.c_str(), mapFilename.c_str());
+    } else {
+      mapFilename = mapFilenameParam;
+    }
+  }
+
+  if (mapFilename != "") {
+    if (!server.openFile(mapFilename)){
+      ROS_ERROR("Could not open file %s", mapFilename.c_str());
+      exit(1);
+    }
+  }
+
+  try{
+//	start_ = ros::WallTime::now();
+    ros::spin();
+//    end_ = ros::WallTime::now();
+//    double execution_time = (end_ - start_).toNSec() * 1e-6;
+//    ROS_INFO_STREAM("Exectution time (ms): " << execution_time);
+  }catch(std::runtime_error& e){
+    ROS_ERROR("octomap_server exception: %s", e.what());
+    return -1;
+  }
+
+  return 0;
+}
+
+

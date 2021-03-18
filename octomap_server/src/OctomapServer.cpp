@@ -206,6 +206,7 @@ ROS_WARN("res: %f", m_res);
   // Set gridmap param
   m_nh_private.setParam("gridmap/width",  m_oGridMap2D.getGridMapWidth() );
   m_nh_private.setParam("gridmap/height", m_oGridMap2D.getGridMapHeight());  // width of down sampled gridmap
+  m_nh_private.setParam("gridmap/num_downsamples", m_nNumPyrDownSample);
 
 //m_ofs.open("/home/hankm/catkin_wsw/insert_scan_time.txt");
 }
@@ -394,6 +395,8 @@ startTime = ros::WallTime::now();
 
   insertScan(sensorToWorldTf.getOrigin(), pc_ground, pc_nonground, free_cells, occupied_cells);
   publishOctomap( cloud->header.stamp, sensorToWorld, free_cells, occupied_cells );
+
+  publishAll(ros::Time::now(), free_cells, occupied_cells);
 
 //  cv::namedWindow("weird", 1);
 //  cv::imshow("weird", m_oGridMap2D.gridMapDownSampled() );
@@ -1513,7 +1516,7 @@ void OctomapServer::filterGroundPlane(const PCLPointCloud& pc, PCLPointCloud& gr
 }
 
 void OctomapServer::handlePreNodeTraversal(const ros::Time& rostime){
-  if (false) //m_publish2DMap)
+  if (true) //m_publish2DMap)
   {
     // init projected 2D map:
     m_gridmap.header.frame_id = m_worldFrameId;
@@ -1531,6 +1534,8 @@ void OctomapServer::handlePreNodeTraversal(const ros::Time& rostime){
     octomap::OcTreeKey maxKey = m_octree->coordToKey(maxPt, m_maxTreeDepth);
 
     ROS_DEBUG("MinKey: %d %d %d / MaxKey: %d %d %d", minKey[0], minKey[1], minKey[2], maxKey[0], maxKey[1], maxKey[2]);
+
+    ROS_ERROR("min max xyz: %f %f %f %f %f %f\n", minX, minY, minZ, maxX, maxY, maxZ);
 
     // add padding if requested (= new min/maxPts in x&y):
     double halfPaddedX = 0.5*m_minSizeX;
@@ -1643,7 +1648,7 @@ void OctomapServer::handlePostNodeTraversal(const ros::Time& rostime){
 
   if (true) //m_publish2DMap)
   {
-    //m_mapPub.publish(m_gridmap); // kmHan disabled to speedup
+    m_mapPub.publish(m_gridmap); // kmHan disabled to speedup
 
     // flip gridmap followed by downsampling
     // m_oGridMap2D.setBinaryMapUnknownPaddedFlip();
@@ -1671,9 +1676,9 @@ void OctomapServer::handlePostNodeTraversal(const ros::Time& rostime){
 //	cv::imshow("downsampled 2d gridmap", m_oGridMap2D.binaryMapUnknownPadded_wRobot() );
 ////	//cv::imshow("downsampled 2d gridmap", m_oGridMap2D.gridMapDownSampled() );
 //	cv::waitKey(10);
-
-    //cv::imwrite("/home/hankm/catkin_ws/src/gridmap_2d/images/gridmap.png",m_oGridMap2D.gridMapDownSampled());
-    //cv::imwrite("/home/hankm/catkin_ws/src/gridmap_2d/images/binaryMapUnknownPadded.png",m_oGridMap2D.binaryMapUnknownPadded());
+//
+//    cv::imwrite("/home/hankm/catkin_ws/src/gridmap_2d/images/gridmap.png",m_oGridMap2D.gridMapDownSampled());
+//    cv::imwrite("/home/hankm/catkin_ws/src/gridmap_2d/images/binaryMapUnknownPadded.png",m_oGridMap2D.binaryMapUnknownPadded());
   }
 }
 

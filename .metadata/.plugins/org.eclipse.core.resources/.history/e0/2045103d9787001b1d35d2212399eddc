@@ -1,0 +1,35 @@
+/*
+ * FrontierDetector.hpp
+ *
+ *  Created on: Mar 18, 2021
+ *      Author: hankm
+ */
+
+#ifndef INCLUDE_FRONTIERDETECTOR_HPP_
+#define INCLUDE_FRONTIERDETECTOR_HPP_
+
+#include <opencv2/core/core.hpp>
+#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
+
+#include <ros/console.h>
+
+
+namespace frontier_detector
+{
+
+class FrontierDetector
+{
+public:
+	FrontierDetector();
+	virtual ~FrontierDetector();
+
+private:
+
+}
+
+}
+
+
+
+#endif /* INCLUDE_FRONTIERDETECTOR_HPP_ */

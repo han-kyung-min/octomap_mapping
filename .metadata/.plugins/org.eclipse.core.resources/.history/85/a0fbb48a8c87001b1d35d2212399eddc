@@ -1,0 +1,22 @@
+/*
+ * FrontierDetector.hpp
+ *
+ *  Created on: Mar 18, 2021
+ *      Author: hankm
+ */
+
+#ifndef INCLUDE_FRONTIERDETECTOR_HPP_
+#define INCLUDE_FRONTIERDETECTOR_HPP_
+
+
+namespace frontier_detector
+{
+public:
+	FrontierDetector();
+
+}
+
+
+
+
+#endif /* INCLUDE_FRONTIERDETECTOR_HPP_ */

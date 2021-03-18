@@ -13,6 +13,8 @@
         <include file="$(find octomap_server)/launch/octomap_mapping.launch">
             <arg name="namespace" value="$(arg my_ns)" /> 
         </include>
+        <!--include file="$(find costmap_2d)/launch/example.launch">
+            <arg name="namespace" value="$(arg my_ns)" />
+        </include-->
     </group>
-
 </launch>

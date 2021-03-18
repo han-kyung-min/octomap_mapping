@@ -1,0 +1,82 @@
+/*
+ * FrontierDetector.cpp
+ *
+ *  Created on: Mar 18, 2021
+ *      Author: hankm
+ */
+
+
+#include "../include/FrontierDetector.hpp"
+
+namespace frontier_detector
+{
+
+FrontierDetector::FrontierDetector(const ros::NodeHandle private_nh_, const ros::NodeHandle &nh_):
+
+m_nh_private(private_nh_),
+m_nh(nh_)
+{
+	m_morph_kernel = cv::getStructuringElement( cv::MORPH_RECT, cv::Size(3,3) );
+	m_mapframedataSub = m_nh.subscribe("mapframe_data", 1, &FrontierDetector::mapCallback, this); // kmHan
+}
+
+FrontierDetector::~FrontierDetector()
+{
+
+}
+
+void FrontierDetector::mapCallback(const octomap_server::mapframedata& msg )
+{
+	cv_bridge::CvImagePtr cv_ptr;
+	cv_ptr = cv_bridge::toCvCopy( msg.image_map_2d, sensor_msgs::image_encodings::MONO8 );
+
+	cv::Mat img, BW, img_occ_only, img_occ_dilate, img_non_occ_dialate, img_frontiers ;
+	img = cv_ptr->image.clone() ;
+
+//	for(int rowidx =0; rowidx < img.rows; rowidx++)
+//	{
+//		for(int colidx=0; colidx < img.cols; colidx++)
+//		{
+//			if( img.at<uchar>(rowidx,colidx) >= 200 )
+//				ROS_WARN(" %u ", img.at<uchar>(rowidx,colidx) );
+//		}
+//		ROS_WARN("\n");
+//	}
+
+	ROS_WARN("img type: %d \n", img.type());  // uint8
+
+	// edge
+	BW = img.clone();
+	cv::Canny(img, BW, 0, 255, 3);
+
+	// obstacles , walls
+	cv::threshold(img, img_occ_only, OCCUPIED_BIN_THR, 255, cv::THRESH_BINARY);
+
+	// dialate
+	//cv::morphologyEx(img_occ_only, , op, kernel, anchor, iterations, borderType, borderValue)
+	cv::dilate(img_occ_only, img_occ_dilate, m_morph_kernel);
+
+	// inverse image
+	img_non_occ_dialate = cv::threshold( img_occ_dilate, img_non_occ_dialate, 0, 255, CV_THRESH_BINARY);
+	img_frontiers = BW.mul( img_non_occ_dialate );
+
+	cv::namedWindow("frontier_detector", 1);
+	cv::namedWindow("edge",1);
+	cv::namedWindow("threshold", 1);
+	cv::namedWindow("dilate", 1);
+	cv::namedWindow("frontiers", 1);
+
+	cv::imshow("frontier_detector", img);
+	cv::imshow("edge",BW);
+	cv::imshow("threshold", img_occ_only);
+	cv::imshow("dilate", img_occ_dilate);
+	cv::imshow("frontiers", img_frontiers);
+
+	cv::waitKey(10);
+
+	return ;
+}
+
+
+}
+

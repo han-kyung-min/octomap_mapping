@@ -1,0 +1,46 @@
+/*
+ * FrontierDetector.hpp
+ *
+ *  Created on: Mar 18, 2021
+ *      Author: hankm
+ */
+
+#ifndef INCLUDE_FRONTIERDETECTOR_HPP_
+#define INCLUDE_FRONTIERDETECTOR_HPP_
+
+#define OCCUPIED_BIN_THR (128)
+
+#include <opencv2/core/core.hpp>
+#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
+#include "octomap_server/mapframedata.h"
+
+#include <ros/ros.h>
+#include <ros/console.h>
+#include <cv_bridge/cv_bridge.h>
+
+namespace frontier_detector
+{
+
+class FrontierDetector
+{
+public:
+	FrontierDetector(const ros::NodeHandle private_nh_, const ros::NodeHandle &nh_);
+	virtual ~FrontierDetector();
+
+	virtual void mapCallback(const octomap_server::mapframedata& msg ) ;
+
+private:
+
+	ros::NodeHandle m_nh;
+	ros::NodeHandle m_nh_private;
+	ros::Subscriber m_mapframedataSub ;
+
+	cv::Mat m_matImg ;
+};
+
+}
+
+
+
+#endif /* INCLUDE_FRONTIERDETECTOR_HPP_ */

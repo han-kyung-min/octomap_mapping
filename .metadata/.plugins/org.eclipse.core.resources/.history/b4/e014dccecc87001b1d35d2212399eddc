@@ -1,0 +1,67 @@
+/*
+ * FrontierDetector.cpp
+ *
+ *  Created on: Mar 18, 2021
+ *      Author: hankm
+ */
+
+
+#include "../include/FrontierDetector.hpp"
+
+namespace frontier_detector
+{
+
+FrontierDetector::FrontierDetector(const ros::NodeHandle private_nh_, const ros::NodeHandle &nh_):
+
+m_nh_private(private_nh_),
+m_nh(nh_)
+{
+	m_mapframedataSub = m_nh.subscribe("mapframe_data", 1, &FrontierDetector::mapCallback, this); // kmHan
+}
+
+FrontierDetector::~FrontierDetector()
+{
+
+}
+
+void FrontierDetector::mapCallback(const octomap_server::mapframedata& msg )
+{
+	cv_bridge::CvImagePtr cv_ptr;
+	cv_ptr = cv_bridge::toCvCopy( msg.image_map_2d, sensor_msgs::image_encodings::MONO8 );
+
+	cv::Mat img = cv_ptr->image.clone() ;
+
+//	for(int rowidx =0; rowidx < img.rows; rowidx++)
+//	{
+//		for(int colidx=0; colidx < img.cols; colidx++)
+//		{
+//			if( img.at<uchar>(rowidx,colidx) >= 200 )
+//				ROS_WARN(" %u ", img.at<uchar>(rowidx,colidx) );
+//		}
+//		ROS_WARN("\n");
+//	}
+
+	ROS_WARN("img type: %d \n", img.type());  // uint8
+
+	// edge
+	cv::Mat BW = img.clone();
+	cv::Canny(img, BW, 0, 255, 3);
+
+	// obstacles , walls
+
+
+
+	cv::namedWindow("frontier_detector", 1);
+	cv::namedWindow("edge",1);
+
+	cv::imshow("frontier_detector", img);
+	cv::imshow("edge",BW);
+
+	cv::waitKey(10);
+
+	return ;
+}
+
+
+}
+

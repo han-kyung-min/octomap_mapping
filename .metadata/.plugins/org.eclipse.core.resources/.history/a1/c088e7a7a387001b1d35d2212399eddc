@@ -1,0 +1,33 @@
+/*
+ * FrontierDetector.cpp
+ *
+ *  Created on: Mar 18, 2021
+ *      Author: hankm
+ */
+
+
+#include "FrontierDetector.hpp"
+#include <octomap_server/mapframedata.h>
+
+namespace frontier_detector
+{
+
+FrontierDetector::FrontierDetector(const ros::NodeHandle private_nh_, const ros::NodeHandle &nh_)
+{
+	m_mapframedataSub = m_nh.subscribe("mapframe_data", 1, mapCallback); // kmHan
+
+}
+
+FrontierDetector::~FrontierDetector()
+{
+
+}
+
+FrontierDetector::mapCallback()
+{
+
+}
+
+
+}
+
