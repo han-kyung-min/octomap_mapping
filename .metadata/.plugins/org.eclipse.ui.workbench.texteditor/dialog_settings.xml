@@ -1,35 +1,35 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <section name="Workbench">
 	<section name="org.eclipse.ui.texteditor.FindReplaceDialog">
-		<item key="selection" value="imshow"/>
+		<item key="selection" value="move_base_si"/>
 		<item key="wrap" value="true"/>
 		<item key="casesensitive" value="false"/>
 		<item key="wholeword" value="false"/>
 		<item key="incremental" value="false"/>
 		<item key="isRegEx" value="false"/>
 		<list key="findhistory">
-			<item value="imshow"/>
-			<item value="m_binaryMapUnknownPadded"/>
-			<item value="incrementCellCoverage"/>
-			<item value="m_binaryMapUn"/>
-			<item value="SetGridMap"/>
-			<item value="SetGridMa"/>
-			<item value="SetGrid"/>
-			<item value="cell"/>
-			<item value="num_cell"/>
-			<item value="imwrite"/>
-			<item value="SetRobot"/>
-			<item value="Set"/>
-			<item value="init"/>
-			<item value="gridmap"/>
-			<item value="circle"/>
+			<item value="move_base_si"/>
+			<item value="move_base"/>
+			<item value="mapping_is"/>
+			<item value="ismappingdone"/>
+			<item value="isdone"/>
+			<item value="m_unreachpointpub"/>
+			<item value="m_move_client"/>
+			<item value="cancel"/>
+			<item value="valid"/>
+			<item value="unreachable_frontier_pub_"/>
+			<item value="planTh"/>
+			<item value="prev/curr"/>
+			<item value="frontier cands"/>
+			<item value="frontier_cands"/>
+			<item value="frontier_cand"/>
 		</list>
 		<list key="replacehistory">
 		</list>
 	</section>
 	<section name="org.eclipse.ui.texteditor.FindReplaceDialog_dialogBounds">
-		<item key="DIALOG_X_ORIGIN" value="1463"/>
-		<item key="DIALOG_Y_ORIGIN" value="365"/>
+		<item key="DIALOG_X_ORIGIN" value="1232"/>
+		<item key="DIALOG_Y_ORIGIN" value="406"/>
 		<item key="DIALOG_WIDTH" value="348"/>
 		<item key="DIALOG_HEIGHT" value="437"/>
 		<item key="DIALOG_FONT_NAME" value="1|Ubuntu|11.0|0|GTK|1|"/>

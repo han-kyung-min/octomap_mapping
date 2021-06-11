@@ -1,0 +1,128 @@
+/*
+ * global_rrt_detector.hpp
+ *
+ *  Created on: Mar 26, 2021
+ *      Author: hankm
+ */
+
+#ifndef INCLUDE_GLOBAL_RRT_DETECTOR_HPP_
+#define INCLUDE_GLOBAL_RRT_DETECTOR_HPP_
+
+#include "ros/ros.h"
+#include "std_msgs/String.h"
+#include <sstream>
+#include <iostream>
+#include <string>
+#include <vector>
+#include "stdint.h"
+#include "functions.h"
+#include "mtrand.h"
+#include "fstream"
+#include "iostream"
+
+#include "nav_msgs/OccupancyGrid.h"
+#include "nav_msgs/Odometry.h"
+#include "geometry_msgs/PointStamped.h"
+#include "std_msgs/Header.h"
+#include "nav_msgs/MapMetaData.h"
+#include "geometry_msgs/Point.h"
+#include "visualization_msgs/Marker.h"
+#include "visualization_msgs/MarkerArray.h"
+#include <tf/transform_listener.h>
+
+#include <opencv2/opencv.hpp>
+
+#include "../include/global_rrt_detector.hpp"
+
+
+namespace global_rrt_detector
+{
+
+class GlobalRRTDetector
+{
+
+public:
+	GlobalRRTDetector(const ros::NodeHandle private_nh_ = ros::NodeHandle("~"), const ros::NodeHandle &nh_ = ros::NodeHandle());
+	virtual ~GlobalRRTDetector();
+
+	void initialization();
+
+	void mapCallBack(const nav_msgs::OccupancyGrid::ConstPtr& msg) ;
+	void odomCallBack(const nav_msgs::Odometry::ConstPtr& msg) ;
+	void rvizCallBack(const geometry_msgs::PointStamped::ConstPtr& msg) ;
+	void appendMarker( visualization_msgs::MarkerArray& markers, geometry_msgs::Point inputpoint, int id ) ;
+	void SetMarker( visualization_msgs::MarkerArray& markers, geometry_msgs::Point inputpoint, int id ) ;
+	void estimateSampleAreaBoundBox( ) ;
+	bool reachabilityTest( const std::vector<float> x_nearest, const std::vector<float> x_new, const float eta) ;
+
+	std::vector<float> Steer(  std::vector<float> x_nearest , std::vector<float> x_rand, float eta) ;
+
+	//Nearest function
+	std::vector<float> Nearest(  std::vector< std::vector<float>  > V, std::vector<float>  x) ;
+
+	int  GetGridValue(nav_msgs::OccupancyGrid &mapData, const std::vector<float> Xp);
+	char ObstacleFree(const std::vector<float>x_near, const std::vector<float> xnew);
+
+	//Get Map
+	nav_msgs::OccupancyGrid GetMapData() ;
+
+	int RunRRT() ;
+
+	//Norm function
+	inline float Norm(const std::vector<float> x1, const std::vector<float> x2)
+	{
+		return pow(	(pow((x2[0]-x1[0]),2)+pow((x2[1]-x1[1]),2))	,0.5);
+	}
+
+	//sign function
+	inline float sign(const float n)
+	{
+		if (n<0.0){return -1.0;}
+		else{return 1.0;}
+	}
+
+
+private:
+
+	ros::NodeHandle m_nh_private;
+	ros::NodeHandle m_nh;
+
+	ros::Subscriber m_odom_sub ;
+	ros::Subscriber m_sub ;
+	ros::Subscriber m_rviz_sub ;
+	ros::Publisher m_targetspub ;
+	ros::Publisher m_pub ;
+	ros::Publisher m_randnewpub ;
+	ros::Publisher m_boxpub ;
+
+	float m_eta ;
+
+	// global variables
+	nav_msgs::OccupancyGrid m_mapData;
+	nav_msgs::Odometry m_odom;
+	geometry_msgs::PointStamped m_clickedpoint;
+	geometry_msgs::PointStamped m_exploration_goal, m_rand_pt;
+	visualization_msgs::Marker m_points, m_line ;
+	visualization_msgs::MarkerArray m_Markers;
+
+	float m_xdim;
+	float m_ydim;
+	float m_resolution;
+	float m_Xstartx;
+	float m_Xstarty;
+	float m_init_map_x;
+	float m_init_map_y;
+
+	std::vector< std::vector<float> > m_V;
+
+//public:
+	//MTRand_int32 m_irand;
+	MTRand m_drand;
+
+	rdm m_random; // for genrating random numbers
+
+};
+
+}
+
+#endif /* INCLUDE_GLOBAL_RRT_DETECTOR_HPP_ */

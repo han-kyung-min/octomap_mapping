@@ -72,3 +72,233 @@ cc1plus: fatal error: /opt/ros/noetic/include: No such file or directory
 compilation terminated.
 make: *** [src/subdir.mk:23: src/OctomapTest.o] Error 1
 "make all" terminated with exit code 2. Build might be incomplete.
+19:33:24 **** Build of configuration Debug for project frontier_detector ****
+make all 
+Building file: ../src/FrontierDetector.cpp
+Invoking: GCC C++ Compiler
+g++ -I/opt/ros/noetic/include -I/home/hankm/catkin_ws/src -I/home/hankm/catkin_ws/devel/include -include/home/hankm/catkin_ws/src -include/home/hankm/catkin_ws/devel/include -include/opt/ros/noetic/include -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"src/FrontierDetector.d" -MT"src/FrontierDetector.o" -o "src/FrontierDetector.o" "../src/FrontierDetector.cpp"
+cc1plus: fatal error: /home/hankm/catkin_ws/src: No such file or directory
+compilation terminated.
+make: *** [src/subdir.mk:23: src/FrontierDetector.o] Error 1
+"make all" terminated with exit code 2. Build might be incomplete.
+19:33:25 **** Build of configuration Debug for project gridmap_2d ****
+make all 
+Building file: ../src/GridMap2D.cpp
+Invoking: GCC C++ Compiler
+g++ -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"src/GridMap2D.d" -MT"src/GridMap2D.o" -o "src/GridMap2D.o" "../src/GridMap2D.cpp"
+../src/GridMap2D.cpp:31:10: fatal error: gridmap_2d/GridMap2D.h: No such file or directory
+   31 | #include "gridmap_2d/GridMap2D.h"
+      |          ^~~~~~~~~~~~~~~~~~~~~~~~
+compilation terminated.
+make: *** [src/subdir.mk:20: src/GridMap2D.o] Error 1
+"make all" terminated with exit code 2. Build might be incomplete.
+19:33:25 **** Build of configuration Debug for project octomap_server ****
+make all 
+Building file: ../src/OctomapServer.cpp
+Invoking: GCC C++ Compiler
+g++ -I/opt/ros/noetic/include -I/home/hankm/catkin_ws/src -I/home/hankm/catkin_ws/devel/include -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"src/OctomapServer.d" -MT"src/OctomapServer.o" -o "src/OctomapServer.o" "../src/OctomapServer.cpp"
+../src/OctomapServer.cpp:30:10: fatal error: octomap_server/OctomapServer.h: No such file or directory
+   30 | #include <octomap_server/OctomapServer.h>
+      |          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+compilation terminated.
+make: *** [src/subdir.mk:44: src/OctomapServer.o] Error 1
+"make all" terminated with exit code 2. Build might be incomplete.
+19:33:26 **** Build of configuration Debug for project octomap_tests ****
+make all 
+Building file: ../src/OctomapTest.cpp
+Invoking: GCC C++ Compiler
+g++ -I/opt/ros/noetic/include -I/usr/local/include/pcl-1.9 -include/opt/ros/noetic/include -include/usr/local/include/pcl-1.9 -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"src/OctomapTest.d" -MT"src/OctomapTest.o" -o "src/OctomapTest.o" "../src/OctomapTest.cpp"
+cc1plus: fatal error: /opt/ros/noetic/include: No such file or directory
+compilation terminated.
+make: *** [src/subdir.mk:23: src/OctomapTest.o] Error 1
+"make all" terminated with exit code 2. Build might be incomplete.
+19:33:26 **** Build of configuration Debug for project rrt_exploration ****
+make all 
+Building file: ../src/functions.cpp
+Invoking: GCC C++ Compiler
+g++ -I/opt/ros/noetic/include -I/home/hankm/catkin_ws/src -I/home/hankm/catkin_ws/src/devel/include -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"src/functions.d" -MT"src/functions.o" -o "src/functions.o" "../src/functions.cpp"
+../src/functions.cpp:1:10: fatal error: functions.h: No such file or directory
+    1 | #include "functions.h"
+      |          ^~~~~~~~~~~~~
+compilation terminated.
+make: *** [src/subdir.mk:29: src/functions.o] Error 1
+"make all" terminated with exit code 2. Build might be incomplete.
+17:00:10 **** Clean-only build of configuration Debug for project frontier_detector ****
+make clean 
+rm -rf  ./src/FrontierDetector.o ./src/frontier_detector_node.o  ./src/FrontierDetector.d ./src/frontier_detector_node.d  frontier_detector
+ 
+17:00:10 **** Incremental Build of configuration Debug for project frontier_detector ****
+make all 
+Building file: ../src/FrontierDetector.cpp
+Invoking: GCC C++ Compiler
+g++ -I/opt/ros/noetic/include -I/home/hankm/catkin_ws/src -I/home/hankm/catkin_ws/devel/include -include/home/hankm/catkin_ws/src -include/home/hankm/catkin_ws/devel/include -include/opt/ros/noetic/include -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"src/FrontierDetector.d" -MT"src/FrontierDetector.o" -o "src/FrontierDetector.o" "../src/FrontierDetector.cpp"
+cc1plus: fatal error: /home/hankm/catkin_ws/src: No such file or directory
+compilation terminated.
+make: *** [src/subdir.mk:23: src/FrontierDetector.o] Error 1
+"make all" terminated with exit code 2. Build might be incomplete.
+17:00:10 **** Incremental Build of configuration Debug for project gridmap_2d ****
+make all 
+Building file: ../src/GridMap2D.cpp
+Invoking: GCC C++ Compiler
+g++ -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"src/GridMap2D.d" -MT"src/GridMap2D.o" -o "src/GridMap2D.o" "../src/GridMap2D.cpp"
+../src/GridMap2D.cpp:31:10: fatal error: gridmap_2d/GridMap2D.h: No such file or directory
+   31 | #include "gridmap_2d/GridMap2D.h"
+      |          ^~~~~~~~~~~~~~~~~~~~~~~~
+compilation terminated.
+make: *** [src/subdir.mk:20: src/GridMap2D.o] Error 1
+"make all" terminated with exit code 2. Build might be incomplete.
+17:00:11 **** Incremental Build of configuration Debug for project octomap_server ****
+make all 
+Building file: ../src/OctomapServer.cpp
+Invoking: GCC C++ Compiler
+g++ -I/opt/ros/noetic/include -I/home/hankm/catkin_ws/src -I/home/hankm/catkin_ws/devel/include -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"src/OctomapServer.d" -MT"src/OctomapServer.o" -o "src/OctomapServer.o" "../src/OctomapServer.cpp"
+../src/OctomapServer.cpp:30:10: fatal error: octomap_server/OctomapServer.h: No such file or directory
+   30 | #include <octomap_server/OctomapServer.h>
+      |          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+compilation terminated.
+make: *** [src/subdir.mk:44: src/OctomapServer.o] Error 1
+"make all" terminated with exit code 2. Build might be incomplete.
+17:00:12 **** Incremental Build of configuration Debug for project octomap_tests ****
+make all 
+Building file: ../src/OctomapTest.cpp
+Invoking: GCC C++ Compiler
+g++ -I/opt/ros/noetic/include -I/usr/local/include/pcl-1.9 -include/opt/ros/noetic/include -include/usr/local/include/pcl-1.9 -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"src/OctomapTest.d" -MT"src/OctomapTest.o" -o "src/OctomapTest.o" "../src/OctomapTest.cpp"
+cc1plus: fatal error: /opt/ros/noetic/include: No such file or directory
+compilation terminated.
+make: *** [src/subdir.mk:23: src/OctomapTest.o] Error 1
+"make all" terminated with exit code 2. Build might be incomplete.
+17:00:12 **** Incremental Build of configuration Debug for project rrt_exploration ****
+make all 
+../src/functions.cpp:1:10: fatal error: functions.h: No such file or directory
+Building file: ../src/functions.cpp
+    1 | #include "functions.h"
+Invoking: GCC C++ Compiler
+g++ -I/opt/ros/noetic/include -I/home/hankm/catkin_ws/src -I/home/hankm/catkin_ws/src/devel/include -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"src/functions.d" -MT"src/functions.o" -o "src/functions.o" "../src/functions.cpp"
+      |          ^~~~~~~~~~~~~
+compilation terminated.
+make: *** [src/subdir.mk:29: src/functions.o] Error 1
+"make all" terminated with exit code 2. Build might be incomplete.
+20:48:29 **** Build of configuration Debug for project frontier_detector ****
+make all 
+Building file: ../src/FrontierDetector.cpp
+Invoking: GCC C++ Compiler
+g++ -I/opt/ros/noetic/include -I/home/hankm/catkin_ws/src -I/home/hankm/catkin_ws/src/navigation/move_base/include -I/home/hankm/catkin_ws/devel/include -include/home/hankm/catkin_ws/src -include/home/hankm/catkin_ws/src/navigation/move_base/include -include/home/hankm/catkin_ws/devel/include -include/opt/ros/noetic/include -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"src/FrontierDetector.d" -MT"src/FrontierDetector.o" -o "src/FrontierDetector.o" "../src/FrontierDetector.cpp"
+cc1plus: fatal error: /home/hankm/catkin_ws/src: No such file or directory
+compilation terminated.
+make: *** [src/subdir.mk:26: src/FrontierDetector.o] Error 1
+"make all" terminated with exit code 2. Build might be incomplete.
+20:48:30 **** Build of configuration Debug for project gridmap_2d ****
+make all 
+Building file: ../src/GridMap2D.cpp
+Invoking: GCC C++ Compiler
+g++ -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"src/GridMap2D.d" -MT"src/GridMap2D.o" -o "src/GridMap2D.o" "../src/GridMap2D.cpp"
+../src/GridMap2D.cpp:31:10: fatal error: gridmap_2d/GridMap2D.h: No such file or directory
+   31 | #include "gridmap_2d/GridMap2D.h"
+      |          ^~~~~~~~~~~~~~~~~~~~~~~~
+compilation terminated.
+make: *** [src/subdir.mk:20: src/GridMap2D.o] Error 1
+"make all" terminated with exit code 2. Build might be incomplete.
+20:48:31 **** Build of configuration Debug for project navigation ****
+make all 
+Building file: ../voxel_grid/test/voxel_grid_tests.cpp
+Invoking: GCC C++ Compiler
+g++ -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"voxel_grid/test/voxel_grid_tests.d" -MT"voxel_grid/test/voxel_grid_tests.o" -o "voxel_grid/test/voxel_grid_tests.o" "../voxel_grid/test/voxel_grid_tests.cpp"
+../voxel_grid/test/voxel_grid_tests.cpp:37:10: fatal error: voxel_grid/voxel_grid.h: No such file or directory
+   37 | #include <voxel_grid/voxel_grid.h>
+      |          ^~~~~~~~~~~~~~~~~~~~~~~~~
+compilation terminated.
+make: *** [voxel_grid/test/subdir.mk:20: voxel_grid/test/voxel_grid_tests.o] Error 1
+"make all" terminated with exit code 2. Build might be incomplete.
+20:48:31 **** Build of configuration Debug for project octomap_server ****
+make all 
+Building file: ../src/OctomapServer.cpp
+Invoking: GCC C++ Compiler
+g++ -I/opt/ros/noetic/include -I/home/hankm/catkin_ws/src -I/home/hankm/catkin_ws/devel/include -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"src/OctomapServer.d" -MT"src/OctomapServer.o" -o "src/OctomapServer.o" "../src/OctomapServer.cpp"
+../src/OctomapServer.cpp:30:10: fatal error: octomap_server/OctomapServer.h: No such file or directory
+   30 | #include <octomap_server/OctomapServer.h>
+      |          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+compilation terminated.
+make: *** [src/subdir.mk:44: src/OctomapServer.o] Error 1
+"make all" terminated with exit code 2. Build might be incomplete.
+20:48:31 **** Build of configuration Debug for project octomap_tests ****
+make all 
+Building file: ../src/OctomapTest.cpp
+Invoking: GCC C++ Compiler
+g++ -I/opt/ros/noetic/include -I/usr/local/include/pcl-1.9 -include/opt/ros/noetic/include -include/usr/local/include/pcl-1.9 -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"src/OctomapTest.d" -MT"src/OctomapTest.o" -o "src/OctomapTest.o" "../src/OctomapTest.cpp"
+cc1plus: fatal error: /opt/ros/noetic/include: No such file or directory
+compilation terminated.
+make: *** [src/subdir.mk:23: src/OctomapTest.o] Error 1
+"make all" terminated with exit code 2. Build might be incomplete.
+20:48:32 **** Build of configuration Debug for project rrt_exploration ****
+make all 
+Building file: ../src/functions.cpp
+Invoking: GCC C++ Compiler
+g++ -I/opt/ros/noetic/include -I/home/hankm/catkin_ws/src -I/home/hankm/catkin_ws/src/devel/include -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"src/functions.d" -MT"src/functions.o" -o "src/functions.o" "../src/functions.cpp"
+../src/functions.cpp:1:10: fatal error: functions.h: No such file or directory
+    1 | #include "functions.h"
+      |          ^~~~~~~~~~~~~
+compilation terminated.
+make: *** [src/subdir.mk:35: src/functions.o] Error 1
+"make all" terminated with exit code 2. Build might be incomplete.
+14:13:19 **** Build of configuration Debug for project frontier_detector ****
+make all 
+Building file: ../src/FrontierDetector.cpp
+Invoking: GCC C++ Compiler
+g++ -I/opt/ros/noetic/include -I/home/hankm/catkin_ws/src -I/home/hankm/catkin_ws/src/navigation/move_base/include -I/home/hankm/catkin_ws/devel/include -include/home/hankm/catkin_ws/src -include/home/hankm/catkin_ws/src/navigation/move_base/include -include/home/hankm/catkin_ws/devel/include -include/opt/ros/noetic/include -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"src/FrontierDetector.d" -MT"src/FrontierDetector.o" -o "src/FrontierDetector.o" "../src/FrontierDetector.cpp"
+cc1plus: fatal error: /home/hankm/catkin_ws/src: No such file or directory
+compilation terminated.
+make: *** [src/subdir.mk:26: src/FrontierDetector.o] Error 1
+"make all" terminated with exit code 2. Build might be incomplete.
+14:13:19 **** Build of configuration Debug for project gridmap_2d ****
+make all 
+Building file: ../src/GridMap2D.cpp
+Invoking: GCC C++ Compiler
+g++ -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"src/GridMap2D.d" -MT"src/GridMap2D.o" -o "src/GridMap2D.o" "../src/GridMap2D.cpp"
+../src/GridMap2D.cpp:31:10: fatal error: gridmap_2d/GridMap2D.h: No such file or directory
+   31 | #include "gridmap_2d/GridMap2D.h"
+      |          ^~~~~~~~~~~~~~~~~~~~~~~~
+compilation terminated.
+make: *** [src/subdir.mk:20: src/GridMap2D.o] Error 1
+"make all" terminated with exit code 2. Build might be incomplete.
+14:13:20 **** Build of configuration Debug for project navigation ****
+make all 
+Building file: ../voxel_grid/test/voxel_grid_tests.cpp
+Invoking: GCC C++ Compiler
+g++ -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"voxel_grid/test/voxel_grid_tests.d" -MT"voxel_grid/test/voxel_grid_tests.o" -o "voxel_grid/test/voxel_grid_tests.o" "../voxel_grid/test/voxel_grid_tests.cpp"
+../voxel_grid/test/voxel_grid_tests.cpp:37:10: fatal error: voxel_grid/voxel_grid.h: No such file or directory
+   37 | #include <voxel_grid/voxel_grid.h>
+      |          ^~~~~~~~~~~~~~~~~~~~~~~~~
+compilation terminated.
+make: *** [voxel_grid/test/subdir.mk:20: voxel_grid/test/voxel_grid_tests.o] Error 1
+"make all" terminated with exit code 2. Build might be incomplete.
+14:13:20 **** Build of configuration Debug for project octomap_server ****
+make all 
+Building file: ../src/OctomapServer.cpp
+Invoking: GCC C++ Compiler
+g++ -I/opt/ros/noetic/include -I/home/hankm/catkin_ws/src -I/home/hankm/catkin_ws/devel/include -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"src/OctomapServer.d" -MT"src/OctomapServer.o" -o "src/OctomapServer.o" "../src/OctomapServer.cpp"
+../src/OctomapServer.cpp:30:10: fatal error: octomap_server/OctomapServer.h: No such file or directory
+   30 | #include <octomap_server/OctomapServer.h>
+      |          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+compilation terminated.
+make: *** [src/subdir.mk:44: src/OctomapServer.o] Error 1
+"make all" terminated with exit code 2. Build might be incomplete.
+14:13:20 **** Build of configuration Debug for project octomap_tests ****
+make all 
+Building file: ../src/OctomapTest.cpp
+Invoking: GCC C++ Compiler
+g++ -I/opt/ros/noetic/include -I/usr/local/include/pcl-1.9 -include/opt/ros/noetic/include -include/usr/local/include/pcl-1.9 -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"src/OctomapTest.d" -MT"src/OctomapTest.o" -o "src/OctomapTest.o" "../src/OctomapTest.cpp"
+cc1plus: fatal error: /opt/ros/noetic/include: No such file or directory
+compilation terminated.
+make: *** [src/subdir.mk:23: src/OctomapTest.o] Error 1
+"make all" terminated with exit code 2. Build might be incomplete.
+14:13:20 **** Build of configuration Debug for project rrt_exploration ****
+make all 
+Building file: ../src/functions.cpp
+Invoking: GCC C++ Compiler
+g++ -I/opt/ros/noetic/include -I/home/hankm/catkin_ws/src -I/home/hankm/catkin_ws/src/devel/include -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"src/functions.d" -MT"src/functions.o" -o "src/functions.o" "../src/functions.cpp"
+../src/functions.cpp:1:10: fatal error: functions.h: No such file or directory
+    1 | #include "functions.h"
+      |          ^~~~~~~~~~~~~
+compilation terminated.
+make: *** [src/subdir.mk:35: src/functions.o] Error 1
+"make all" terminated with exit code 2. Build might be incomplete.

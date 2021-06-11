@@ -1,0 +1,14 @@
+14:13:20 **** Build of configuration Debug for project navigation ****
+make all 
+Building file: ../voxel_grid/test/voxel_grid_tests.cpp
+Invoking: GCC C++ Compiler
+g++ -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"voxel_grid/test/voxel_grid_tests.d" -MT"voxel_grid/test/voxel_grid_tests.o" -o "voxel_grid/test/voxel_grid_tests.o" "../voxel_grid/test/voxel_grid_tests.cpp"
+../voxel_grid/test/voxel_grid_tests.cpp:37:10: fatal error: voxel_grid/voxel_grid.h: No such file or directory
+   37 | #include <voxel_grid/voxel_grid.h>
+      |          ^~~~~~~~~~~~~~~~~~~~~~~~~
+compilation terminated.
+make: *** [voxel_grid/test/subdir.mk:20: voxel_grid/test/voxel_grid_tests.o] Error 1
+"make all" terminated with exit code 2. Build might be incomplete.
+
+14:13:20 Build Failed. 2 errors, 0 warnings. (took 168ms)
+
