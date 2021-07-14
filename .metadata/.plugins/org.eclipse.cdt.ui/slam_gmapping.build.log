@@ -1,0 +1,12 @@
+11:39:43 **** Build of configuration Debug for project slam_gmapping ****
+make all 
+Building file: ../gmapping/test/rtest.cpp
+Invoking: GCC C++ Compiler
+g++ -I/opt/ros/noetic/include -I/home/hankm/catkin_ws/devel/include -include/opt/ros/noetic/include -include/home/hankm/catkin_ws/devel/include -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"gmapping/test/rtest.d" -MT"gmapping/test/rtest.o" -o "gmapping/test/rtest.o" "../gmapping/test/rtest.cpp"
+cc1plus: fatal error: /opt/ros/noetic/include: No such file or directory
+compilation terminated.
+make: *** [gmapping/test/subdir.mk:20: gmapping/test/rtest.o] Error 1
+"make all" terminated with exit code 2. Build might be incomplete.
+
+11:39:44 Build Failed. 1 errors, 0 warnings. (took 167ms)
+

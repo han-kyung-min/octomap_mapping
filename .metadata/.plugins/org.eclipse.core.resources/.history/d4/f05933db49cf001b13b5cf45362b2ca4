@@ -1,0 +1,346 @@
+/*
+ * ffpcv.hpp
+ *
+ *  Created on: Apr 6, 2021
+ *      Author: hankm
+ */
+
+#ifndef SRC_FFPCV_HPP_
+#define SRC_FFPCV_HPP_
+
+
+#include<cmath>
+#include<cstring>
+#include<algorithm>
+#include<vector>
+#include<queue>
+#include "opencv2/core.hpp"
+#include "opencv2/imgproc.hpp"
+#include "opencv2/opencv.hpp"
+
+//#define DRAW_CONTOUR
+
+namespace ffpcv
+{
+
+constexpr char WIND_NAME[] = "Image";
+
+enum MapStatus   {UNKNOWN=255, FREE=0, OCCUPIED=127};
+enum MarchStatus {KNOWN=0, TRIAL, FAR};
+enum LevelSetStatus {INSIDE=0, OUTSIDE=1};
+
+typedef struct lattice
+{
+public:
+	lattice( int id_, int tag_ = 2, bool bflag_ = 1 ): id(id_), tag(tag_), bflag(bflag_) {};
+	lattice():id(0), tag(2), bflag(1)
+	{};
+
+public:
+	int id  ;
+	int tag ;	// known 0,  trial 1, far 2
+	bool bflag; // cannot march   0,  can march  1 (inside 0, outside 1)
+
+}lattice;
+
+
+class FrontPropagation
+{
+public:
+	FrontPropagation( const cv::Mat& image  ):
+	m_rows(image.rows), m_cols(image.cols),
+	m_neighbor(6)
+	{
+		//m_cvStatus.zeros(m_rows, m_cols, CV_8U);
+		m_cvStatus = cv::Mat::zeros(m_rows, m_cols, CV_8U);
+		m_cvStatus.setTo( MapStatus::UNKNOWN );
+		//m_neighbor.resize(6);
+		m_cvFrontierContour = cv::Mat::zeros(m_rows, m_cols, CV_8U);
+
+		m_len = m_rows * m_cols ;
+		m_lattice.resize( m_len ) ;
+		//pMarchStatus = m_cvStatus.data ;
+		m_image = image.clone();
+	};
+	~FrontPropagation(  ){} ;
+
+	int nncolidx[6] = {-1,1,0,0,-1,1} ;
+	int nnrowidx[6] = {0,0,-1,1,-1,1} ;
+
+	void MarchFront( const cv::Mat& uImage, cv::Point seeds )
+	{
+
+		int nid = seeds.x + seeds.y * m_cols ;
+		m_que.push_back(nid);
+		while( !m_que.empty() )
+		{
+//printQ();
+			int pid = m_que.front() ;
+			int colidx = pid % m_cols ;
+			int rowidx = static_cast<int>( std::floor( (float)pid / (float)m_cols) ) ;
+			m_que.pop_front() ;
+			// update march status
+			m_lattice[pid].tag = MarchStatus::KNOWN ;
+			//m_cvStatus.at<uchar>(pid) = 255;
+
+//printf(": %d %d %d \n", pid, rowidx, colidx);
+
+			// each neighboring pixels Q of P
+			// l,r,t,b,tl,br
+
+			// now check if we can march
+			for(size_t i=0; i < 6; i++)
+			{
+				int nrowidx = rowidx + nnrowidx[i];
+				int ncolidx = colidx + nncolidx[i];
+				int qid = nrowidx * m_cols + ncolidx ;
+
+//printf("pid %d qid: %d \n",pid, qid);
+
+				if( nrowidx < 0 || ncolidx < 0 || nrowidx >= m_rows || ncolidx >= m_cols || qid == pid)
+				{
+					continue;
+				}
+
+
+				if( m_lattice[ qid ].tag != MarchStatus::KNOWN ) // meaning that we need to check for update
+				{
+					if( uImage.at<uint8_t>(qid) == MapStatus::UNKNOWN  ) // if we can physically march front
+					{
+						m_lattice[ qid ].bflag = LevelSetStatus::OUTSIDE ;
+						m_cvStatus.at<uint8_t>(qid) = MapStatus::FREE; //0;
+						if(m_lattice[qid].tag == MarchStatus::FAR)
+						{
+							m_que.push_back( qid );
+							//std::unique(m_que.begin(),m_que.end());
+							m_lattice[qid].tag = MarchStatus::TRIAL ;
+							//m_cvStatus.at<uchar>(qid) = 255 ;
+						}
+					}
+					else // this case mean that we are facing a boundary
+					{
+						m_contour.push_back(pid);
+
+						//m_cvStatus.at<uchar>(qid) = 255 ;
+					}
+				}
+				// if we cannot march,
+			}
+//
+//cv::namedWindow("tmp");
+//cv::imshow("tmp", m_cvStatus);
+//cv::waitKey(1);
+		}
+
+		// At the end, take unique front indexes
+		std::vector<int>::iterator it;
+		it = std::unique( m_contour.begin(), m_contour.end() );
+		m_contour.resize( std::distance(m_contour.begin(),it) );
+
+		// print boundary
+		for(size_t i=0; i < m_contour.size(); i++)
+		{
+			int pid = m_contour[i];
+			int colidx = pid % m_cols ;
+			int rowidx = static_cast<int>( std::floor( (float)pid / (float)m_cols) ) ;
+
+			m_cvStatus.at<uint8_t>(rowidx, colidx) = MapStatus::OCCUPIED; //255 ;
+			//printf(" %d %d \n", rowidx, colidx );
+		}
+	}
+
+	void printQ()
+	{
+		printf("Q: ");
+		for( size_t i=0; i < m_que.size(); i++ )
+			printf(" %d ", m_que[i]);
+		printf("\n");
+	}
+
+
+	void update(const cv::Mat& gray_float, cv::Point seeds)
+	{
+	    MarchFront(gray_float, seeds);
+
+//	    cv::namedWindow("after the fast marching",1);
+//	    cv::imshow("after the fast marching", m_cvStatus);
+//	    cv::waitKey(10);
+	}
+
+	// Handler for click to segment
+	void mouse_handler(int event, int x, int y, int _, void* data){
+	    if (event != 1) return;
+	    printf("FMM from: %d %d\n", x, y);
+	    //m_seeds = std::vector<cv::Point> {{x, y}};
+	    update(*reinterpret_cast<cv::Mat*>(data), cv::Point(x,y));
+	}
+
+	int left( const int& pid )
+	{
+		return pid - 1;
+	}
+
+	int right( const int& pid )
+	{
+		return pid + 1;
+	}
+
+	int top( const int& pid )
+	{
+		return pid - m_cols;
+	}
+
+	int bott( const int& pid )
+	{
+		return pid + m_cols;
+	}
+
+	int topleft( const int& pid )
+	{
+		return pid - m_cols - 1;
+	}
+
+	int bottright( const int& pid )
+	{
+		return pid + m_cols + 1;
+	}
+
+	std::vector<lattice> getlattice()
+	{
+		return m_lattice;
+	}
+
+	lattice getgridinfo( int rowidx, int colidx )
+	{
+		if(rowidx >= 0 && colidx >= 0 && rowidx < m_rows && colidx < m_cols ) // valid id
+		{
+			int id = colidx + rowidx * m_cols;
+			//printf("in %d %d %d ", id, colidx, rowidx);
+			m_lattice[id].id = id ; // I know it is werid .. but
+			return m_lattice[id];
+		}
+		else
+		{
+			return lattice(-1,0,0);
+		}
+	}
+
+	void pop_front( std::vector<int>& vec)
+	{
+		assert(!vec.empty());
+		vec.front() = std::move(vec.back());
+		vec.pop_back();
+	}
+
+	std::vector<int> GetContour()
+	{
+		return m_contour ;
+	}
+
+	cv::Point ind2sub( int index )
+	{
+		int colidx = index % m_cols ;
+		int rowidx = static_cast<int>( std::floor( (float)index / (float)m_cols) ) ;
+		return cv::Point( colidx, rowidx );
+	}
+
+	void extractFrontierRegion( const cv::Mat& mapimage  ) // unsigned char
+	{
+		#ifdef DRAW_CONTOUR
+			cv::Mat cvFrontier = mapimage.clone() ;
+			cv::cvtColor(m_cvStatus, cvFrontier, cv::COLOR_GRAY2RGB);
+		#endif
+
+		for( size_t idx=0; idx < m_contour.size() ; idx++ )
+		{
+			cv::Point pt = ind2sub( m_contour[idx] ) ;
+
+		// check for 8 neighboring pts
+
+			int u = pt.x ;
+			int v = pt.y ;
+
+		// left
+			int lu = MAX(u - 1, 0);
+		// right
+			int ru = MIN(u + 1, m_cols);
+		// top
+			int tv = MAX(v - 1, 0);
+		// bottom
+			int bv = MIN(v + 1, m_rows);
+
+			uint8_t x0  = mapimage.at<uint8_t>( tv, lu ) ;
+			uint8_t x1 	= mapimage.at<uint8_t>( tv, u ) ;
+			uint8_t x2	= mapimage.at<uint8_t>( tv, ru ) ;
+
+			uint8_t x3	= mapimage.at<uint8_t>( v, lu) ;
+			uint8_t x4	= mapimage.at<uint8_t>( v, u) ;
+			uint8_t x5	= mapimage.at<uint8_t>( v, ru) ;
+
+			uint8_t x6	= mapimage.at<uint8_t>( bv, lu) ;
+			uint8_t x7	= mapimage.at<uint8_t>( bv, u ) ;
+			uint8_t x8	= mapimage.at<uint8_t>( bv, ru) ;
+
+			if( x0 == MapStatus::OCCUPIED || x1 == MapStatus::OCCUPIED || x2 == MapStatus::OCCUPIED  ||
+				x3 == MapStatus::OCCUPIED || x4 == MapStatus::OCCUPIED || x5 == MapStatus::OCCUPIED  ||
+				x6 == MapStatus::OCCUPIED || x7 == MapStatus::OCCUPIED || x8 == MapStatus::OCCUPIED  )
+			{
+				continue;
+			}
+			else
+			{
+				m_cvFrontierContour.at<uchar>( v, u ) = 255; //MapStatus::OCCUPIED ;
+				m_frontierContour.push_back(cv::Point(v, u) ) ;
+				#ifdef DRAW_CONTOUR
+					cvFrontier.at<cv::Vec3b>( v, u )[0] = 0 ;
+					cvFrontier.at<cv::Vec3b>( v, u )[1] = 255 ;
+					cvFrontier.at<cv::Vec3b>( v, u )[2] = 0 ;
+				#endif
+			}
+		}
+
+		#ifdef DRAW_CONTOUR
+			cv::namedWindow("frontier contour", 1);
+			cv::imshow("frontier contour", cvFrontier);
+			cv::waitKey(10);
+
+			cv::imwrite("/home/hankm/catkin_ws/src/frontier_detector/images/after_fm.png", m_cvStatus);
+			cv::imwrite("/home/hankm/catkin_ws/src/frontier_detector/images/frontier_contour.png", cvFrontier);
+		#endif
+	}
+
+	cv::Mat GetFrontierContour( )
+	{
+		return m_cvFrontierContour ;
+	}
+
+	void clusterToThreeLabels( cv::Mat& uImage  )
+	{
+		cv::Mat dst;
+		cv::threshold( uImage, uImage, 200, 255, cv::THRESH_BINARY ); // 200 ~ 255 --> 255
+		cv::threshold( uImage, uImage, 200, 255, cv::THRESH_BINARY );
+	}
+
+private:
+
+	std::vector<cv::Point> m_seeds ;
+	std::vector<lattice> m_lattice ;
+	std::deque<int> m_que ;
+	std::vector<int> m_contour ;
+	std::vector<cv::Point> m_frontierContour ;
+	std::vector<lattice> m_neighbor ;
+
+	cv::Mat m_cvStatus ;
+	cv::Mat m_cvLevelSet ;
+	cv::Mat m_cvFrontierContour ;
+
+	int m_rows, m_cols, m_len ;
+	cv::Mat m_image;
+
+//	uchar* pMarchStatus ;
+
+};
+
+}
+
+#endif /* SRC_FFPCV_HPP_ */

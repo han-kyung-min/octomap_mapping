@@ -1,0 +1,38 @@
+digraph G {
+"gripper_link" -> "l_gripper_finger_link"[label=" Broadcaster: /robot_state_publisher\nAverage rate: 62.525\nBuffer length: 4.99\nMost recent transform: 1623304222.669\nOldest transform: 1623304217.679\n"];
+"wrist_roll_link" -> "gripper_link"[label=" Broadcaster: /robot_state_publisher\nAverage rate: 10000.0\nBuffer length: 0.0\nMost recent transform: 0.0\nOldest transform: 0.0\n"];
+"gripper_link" -> "r_gripper_finger_link"[label=" Broadcaster: /robot_state_publisher\nAverage rate: 62.525\nBuffer length: 4.99\nMost recent transform: 1623304222.669\nOldest transform: 1623304217.679\n"];
+"world" -> "map"[label=" Broadcaster: /my_tf_mw\nAverage rate: 10000.0\nBuffer length: 0.0\nMost recent transform: 0.0\nOldest transform: 0.0\n"];
+"torso_lift_link" -> "bellows_link2"[label=" Broadcaster: /robot_state_publisher\nAverage rate: 10000.0\nBuffer length: 0.0\nMost recent transform: 0.0\nOldest transform: 0.0\n"];
+"base_link" -> "torso_lift_link"[label=" Broadcaster: /robot_state_publisher\nAverage rate: 45.325\nBuffer length: 4.92\nMost recent transform: 1623304222.614\nOldest transform: 1623304217.694\n"];
+"base_link" -> "br_caster_link"[label=" Broadcaster: /robot_state_publisher\nAverage rate: 10000.0\nBuffer length: 0.0\nMost recent transform: 0.0\nOldest transform: 0.0\n"];
+"odom" -> "base_link"[label=" Broadcaster: /player\nAverage rate: 50.196\nBuffer length: 4.961\nMost recent transform: 1623304222.651\nOldest transform: 1623304217.69\n"];
+"base_link" -> "bl_caster_link"[label=" Broadcaster: /robot_state_publisher\nAverage rate: 10000.0\nBuffer length: 0.0\nMost recent transform: 0.0\nOldest transform: 0.0\n"];
+"map" -> "odom"[label=" Broadcaster: /slam_gmapping\nAverage rate: 40.011\nBuffer length: 4.974\nMost recent transform: 1623304222.704\nOldest transform: 1623304217.73\n"];
+"base_link" -> "estop_link"[label=" Broadcaster: /robot_state_publisher\nAverage rate: 10000.0\nBuffer length: 0.0\nMost recent transform: 0.0\nOldest transform: 0.0\n"];
+"base_link" -> "fl_caster_link"[label=" Broadcaster: /robot_state_publisher\nAverage rate: 10000.0\nBuffer length: 0.0\nMost recent transform: 0.0\nOldest transform: 0.0\n"];
+"head_camera_link" -> "head_camera_depth_frame"[label=" Broadcaster: /robot_state_publisher\nAverage rate: 10000.0\nBuffer length: 0.0\nMost recent transform: 0.0\nOldest transform: 0.0\n"];
+"head_tilt_link" -> "head_camera_link"[label=" Broadcaster: /robot_state_publisher\nAverage rate: 10000.0\nBuffer length: 0.0\nMost recent transform: 0.0\nOldest transform: 0.0\n"];
+"base_link" -> "fr_caster_link"[label=" Broadcaster: /robot_state_publisher\nAverage rate: 10000.0\nBuffer length: 0.0\nMost recent transform: 0.0\nOldest transform: 0.0\n"];
+"head_camera_rgb_frame" -> "head_camera_rgb_optical_frame"[label=" Broadcaster: /robot_state_publisher\nAverage rate: 10000.0\nBuffer length: 0.0\nMost recent transform: 0.0\nOldest transform: 0.0\n"];
+"head_camera_link" -> "head_camera_rgb_frame"[label=" Broadcaster: /robot_state_publisher\nAverage rate: 10000.0\nBuffer length: 0.0\nMost recent transform: 0.0\nOldest transform: 0.0\n"];
+"wrist_flex_link" -> "wrist_roll_link"[label=" Broadcaster: /robot_state_publisher\nAverage rate: 45.325\nBuffer length: 4.92\nMost recent transform: 1623304222.614\nOldest transform: 1623304217.694\n"];
+"head_pan_link" -> "head_tilt_link"[label=" Broadcaster: /robot_state_publisher\nAverage rate: 45.325\nBuffer length: 4.92\nMost recent transform: 1623304222.614\nOldest transform: 1623304217.694\n"];
+"base_link" -> "torso_fixed_link"[label=" Broadcaster: /robot_state_publisher\nAverage rate: 10000.0\nBuffer length: 0.0\nMost recent transform: 0.0\nOldest transform: 0.0\n"];
+"head_camera_depth_frame" -> "head_camera_depth_optical_frame"[label=" Broadcaster: /robot_state_publisher\nAverage rate: 10000.0\nBuffer length: 0.0\nMost recent transform: 0.0\nOldest transform: 0.0\n"];
+"base_link" -> "laser_link"[label=" Broadcaster: /robot_state_publisher\nAverage rate: 10000.0\nBuffer length: 0.0\nMost recent transform: 0.0\nOldest transform: 0.0\n"];
+"torso_lift_link" -> "bellows_link"[label=" Broadcaster: /robot_state_publisher\nAverage rate: 45.325\nBuffer length: 4.92\nMost recent transform: 1623304222.614\nOldest transform: 1623304217.694\n"];
+"upperarm_roll_link" -> "elbow_flex_link"[label=" Broadcaster: /robot_state_publisher\nAverage rate: 45.325\nBuffer length: 4.92\nMost recent transform: 1623304222.614\nOldest transform: 1623304217.694\n"];
+"shoulder_lift_link" -> "upperarm_roll_link"[label=" Broadcaster: /robot_state_publisher\nAverage rate: 45.325\nBuffer length: 4.92\nMost recent transform: 1623304222.614\nOldest transform: 1623304217.694\n"];
+"elbow_flex_link" -> "forearm_roll_link"[label=" Broadcaster: /robot_state_publisher\nAverage rate: 45.325\nBuffer length: 4.92\nMost recent transform: 1623304222.614\nOldest transform: 1623304217.694\n"];
+"torso_lift_link" -> "head_pan_link"[label=" Broadcaster: /robot_state_publisher\nAverage rate: 45.325\nBuffer length: 4.92\nMost recent transform: 1623304222.614\nOldest transform: 1623304217.694\n"];
+"base_link" -> "l_wheel_link"[label=" Broadcaster: /robot_state_publisher\nAverage rate: 45.325\nBuffer length: 4.92\nMost recent transform: 1623304222.614\nOldest transform: 1623304217.694\n"];
+"base_link" -> "r_wheel_link"[label=" Broadcaster: /robot_state_publisher\nAverage rate: 45.325\nBuffer length: 4.92\nMost recent transform: 1623304222.614\nOldest transform: 1623304217.694\n"];
+"shoulder_pan_link" -> "shoulder_lift_link"[label=" Broadcaster: /robot_state_publisher\nAverage rate: 45.325\nBuffer length: 4.92\nMost recent transform: 1623304222.614\nOldest transform: 1623304217.694\n"];
+"torso_lift_link" -> "shoulder_pan_link"[label=" Broadcaster: /robot_state_publisher\nAverage rate: 45.325\nBuffer length: 4.92\nMost recent transform: 1623304222.614\nOldest transform: 1623304217.694\n"];
+"forearm_roll_link" -> "wrist_flex_link"[label=" Broadcaster: /robot_state_publisher\nAverage rate: 45.325\nBuffer length: 4.92\nMost recent transform: 1623304222.614\nOldest transform: 1623304217.694\n"];
+edge [style=invis];
+ subgraph cluster_legend { style=bold; color=black; label ="view_frames Result";
+"Recorded at time: 1623304222.7042227"[ shape=plaintext ] ;
+}->"world";
+}

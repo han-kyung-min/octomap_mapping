@@ -1,0 +1,38 @@
+/*
+ * wfd.hpp
+ *
+ *  Created on: Jul 3, 2021
+ *      Author: hankm
+ */
+
+#ifndef INCLUDE_WFD_HPP_
+#define INCLUDE_WFD_HPP_
+
+namespace wfd
+{
+
+enum MapStatus   {MAP_UNKNOWN=127, MAP_OPEN=0, MAP_CLOSE=255};
+
+typedef struct frontier_queue
+{
+public:
+	frontier_queue( int id_, int tag_ = 2, bool bflag_ = 1 ): id(id_), tag(tag_), bflag(bflag_) {};
+	frontier_queue():id(0), tag(2), bflag(1)
+	{};
+
+public:
+	int id  ;
+	int tag ;	// known 0,  trial 1, far 2
+	bool bflag; // cannot march   0,  can march  1 (inside 0, outside 1)
+
+}lattice;
+
+
+
+class WaveFrontDetector
+{
+
+}
+
+
+#endif /* INCLUDE_WFD_HPP_ */
