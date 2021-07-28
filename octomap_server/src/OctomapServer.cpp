@@ -1666,6 +1666,10 @@ void OctomapServer::handlePostNodeTraversal(const ros::Time& rostime){
     mapframe_data.header.stamp = ros::Time::now();
     mapframe_data.nCoverageUpdate = m_oGridMap2D.GetNumCellCoverageAtCurrStep();
     mapframe_data.nTotCoverage = m_oGridMap2D.GetTotCellCoverage() ;
+    mapframe_data.nGridMapWidth = m_gridmap.info.width ;
+    mapframe_data.nGridMapHeight = m_gridmap.info.height ;
+    mapframe_data.fGridMapOriginX = m_gridmap.info.origin.position.x;
+    mapframe_data.fGridMapOriginY = m_gridmap.info.origin.position.y;
 
 //ROS_WARN("been here \n");
     ROS_ERROR("# step coverage, totcell coverage: %d  %d\n", m_oGridMap2D.GetNumCellCoverageAtCurrStep(), m_oGridMap2D.GetTotCellCoverage());

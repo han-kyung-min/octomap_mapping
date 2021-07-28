@@ -1,4 +1,8 @@
 Header header
 int32 nCoverageUpdate
 int32 nTotCoverage
+int32 nGridMapWidth
+int32 nGridMapHeight
+float32 fGridMapOriginX
+float32 fGridMapOriginY
 sensor_msgs/Image image_map_2d
