@@ -1,35 +1,35 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <section name="Workbench">
 	<section name="org.eclipse.ui.texteditor.FindReplaceDialog">
-		<item key="selection" value="currP"/>
+		<item key="selection" value="recovery_behaviors_.push"/>
 		<item key="wrap" value="true"/>
 		<item key="casesensitive" value="false"/>
 		<item key="wholeword" value="false"/>
 		<item key="incremental" value="false"/>
 		<item key="isRegEx" value="false"/>
 		<list key="findhistory">
-			<item value="currP"/>
-			<item value="gridmap2img"/>
-			<item value="gridmap2"/>
-			<item value="robotpose"/>
-			<item value="eliminateSupriousFrontiers"/>
-			<item value="m_mapdata2d"/>
-			<item value="move_base_si"/>
-			<item value="move_base"/>
-			<item value="mapping_is"/>
-			<item value="ismappingdone"/>
-			<item value="isdone"/>
-			<item value="m_unreachpointpub"/>
-			<item value="m_move_client"/>
-			<item value="cancel"/>
-			<item value="valid"/>
+			<item value="recovery_behaviors_.push"/>
+			<item value="recovery_behaviors_"/>
+			<item value="runB"/>
+			<item value="run"/>
+			<item value="rotate"/>
+			<item value="recovery"/>
+			<item value="recov"/>
+			<item value="reco"/>
+			<item value="reconfigureCB"/>
+			<item value="reconfigure"/>
+			<item value="vx_samples_"/>
+			<item value="prune_plan_"/>
+			<item value="latch_xy_goal_tolerance_"/>
+			<item value="xy_tolerance_latch_"/>
+			<item value="switch(state"/>
 		</list>
 		<list key="replacehistory">
 		</list>
 	</section>
 	<section name="org.eclipse.ui.texteditor.FindReplaceDialog_dialogBounds">
-		<item key="DIALOG_X_ORIGIN" value="979"/>
-		<item key="DIALOG_Y_ORIGIN" value="407"/>
+		<item key="DIALOG_X_ORIGIN" value="1319"/>
+		<item key="DIALOG_Y_ORIGIN" value="461"/>
 		<item key="DIALOG_WIDTH" value="348"/>
 		<item key="DIALOG_HEIGHT" value="437"/>
 		<item key="DIALOG_FONT_NAME" value="1|Ubuntu|11.0|0|GTK|1|"/>

@@ -1,9 +1,0 @@
-digraph G {
-"base_link_gt" -> "right_cam"[label="Broadcaster: /tesse/tesse_ros_bridge\nAverage rate: 10000.000 Hz\nMost recent transform: 0.000 ( 12348.320 sec old)\nBuffer length: 0.000 sec\n"];
-"world" -> "base_link_gt"[label="Broadcaster: /tesse/tesse_ros_bridge\nAverage rate: 100.206 Hz\nMost recent transform: 12348.320 ( 0.000 sec old)\nBuffer length: 4.850 sec\n"];
-"base_link_gt" -> "left_cam"[label="Broadcaster: /tesse/tesse_ros_bridge\nAverage rate: 10000.000 Hz\nMost recent transform: 0.000 ( 12348.320 sec old)\nBuffer length: 0.000 sec\n"];
-edge [style=invis];
- subgraph cluster_legend { style=bold; color=black; label ="view_frames Result";
-"Recorded at time: 12348.320"[ shape=plaintext ] ;
- }->"world";
-}

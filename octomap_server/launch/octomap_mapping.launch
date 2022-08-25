@@ -19,14 +19,14 @@
             <param name="resolution" value="0.05" />
             
             <!-- fixed map frame (set to 'map' if SLAM or localization running!) -->
-            <param name="frame_id" type="string" value="world" />
+            <param name="frame_id" type="string" value="map" />
             
             <!-- maximum range to integrate (speedup!) -->
-            <param name="sensor_model/max_range" value="5.0" />
+            <param name="sensor_model/max_range" value="12.0" />
             
             <!-- data source to integrate (PointCloud2) -->
             <!--remap from="cloud_in" to="/narrow_stereo/points_filtered2" /-->
-            <remap from="/$(arg namespace)/cloud_in" to="/$(arg namespace)/gt_point_cloud_xyz" />
+            <remap from="/$(arg namespace)/cloud_in" to="/$(arg namespace)/sensor_scan" />
 <!--        <remap from="tf"        to="/$(arg namespace)/tf" />
         <remap from="tf_static" to="/$(arg namespace)/tf_static" />-->
         </node>
