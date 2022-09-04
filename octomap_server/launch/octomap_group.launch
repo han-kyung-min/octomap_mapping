@@ -7,8 +7,7 @@
   www.ros.org/wiki/octomap_server for details  
 -->
 <launch>
-    <arg name="agent_id" default="0"/>
-    <arg name="my_ns" value="tesse$(arg agent_id)"/>
+    <arg name="my_ns" value="robot1"/>
     <group ns="$(arg my_ns)">
         <include file="$(find octomap_server)/launch/octomap_mapping.launch">
             <arg name="namespace" value="$(arg my_ns)" /> 

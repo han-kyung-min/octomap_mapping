@@ -75,7 +75,7 @@ OctomapServer::OctomapServer(const ros::NodeHandle private_nh_, const ros::NodeH
   //m_publish2DMap(false)		// by kmHan
 {
   double probHit, probMiss, thresMin, thresMax;
-
+ROS_WARN("w: %s \n", m_worldFrameId.c_str() );
   m_nh_private.param("frame_id", m_worldFrameId, m_worldFrameId);
   m_nh_private.param("base_frame_id", m_baseFrameId, m_baseFrameId);
   m_nh_private.param("height_map", m_useHeightMap, m_useHeightMap);
@@ -211,6 +211,9 @@ OctomapServer::OctomapServer(const ros::NodeHandle private_nh_, const ros::NodeH
   m_nh_private.setParam("gridmap/num_downsamples", m_nNumPyrDownSample);
 
 //m_ofs.open("/home/hankm/catkin_wsw/insert_scan_time.txt");
+
+
+  ROS_WARN("world/base frame id: (%s, %s)\n", m_worldFrameId.c_str(), m_baseFrameId.c_str() );
 }
 
 OctomapServer::~OctomapServer(){
@@ -288,7 +291,7 @@ bool OctomapServer::openFile(const std::string& filename){
 void OctomapServer::insertCloudCallback(const sensor_msgs::PointCloud2::ConstPtr& cloud){
   ros::WallTime startTime, endTime;
 
-  ROS_INFO("insertCloudCallback \n");
+  //ROS_WARN("insertCloudCallback \n");
 
 //static double cbcnt = 1.0;
 //static double msg2pclTime = 0;
@@ -595,7 +598,7 @@ ros::WallTime startTime, endTime;
 startTime = ros::WallTime::now();
 
   // all other points: free on ray, occupied on endpoint:
-const float maxz_thr = 1.0; //0.15; //1.1;
+const float maxz_thr = 0.3; //0.15; //1.1;
 const float minz_thr = 0.2; //0.05; //0.9;
   for (PCLPointCloud::const_iterator it = nonground.begin(); it != nonground.end(); ++it){
 	if(it->z > maxz_thr || it->z < minz_thr)
@@ -642,7 +645,7 @@ const float minz_thr = 0.2; //0.05; //0.9;
 
 
 double total_elapsed = (ros::WallTime::now() - startTime).toSec();
-ROS_ERROR("\n compute ray time %f \n", total_elapsed);
+//ROS_ERROR("\n compute ray time %f \n", total_elapsed);
 
 startTime = ros::WallTime::now() ;
 
@@ -1664,7 +1667,7 @@ void OctomapServer::handlePostNodeTraversal(const ros::Time& rostime){
   if (true) //m_publish2DMap)
   {
 
-	  ROS_ERROR("gridmap size: %d %d\n", m_gridmap.info.height, m_gridmap.info.width );
+	  //ROS_ERROR("gridmap size: %d %d\n", m_gridmap.info.height, m_gridmap.info.width );
 
     m_mapPub.publish(m_gridmap); // kmHan disabled to speedup
 
