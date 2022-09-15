@@ -598,7 +598,7 @@ ros::WallTime startTime, endTime;
 startTime = ros::WallTime::now();
 
   // all other points: free on ray, occupied on endpoint:
-const float maxz_thr = 0.3; //0.15; //1.1;
+const float maxz_thr = 3.0; //0.15; //1.1;
 const float minz_thr = 0.2; //0.05; //0.9;
   for (PCLPointCloud::const_iterator it = nonground.begin(); it != nonground.end(); ++it){
 	if(it->z > maxz_thr || it->z < minz_thr)
