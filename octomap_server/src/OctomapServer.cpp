@@ -47,7 +47,7 @@ OctomapServer::OctomapServer(const ros::NodeHandle private_nh_, const ros::NodeH
   m_reconfigureServer(m_config_mutex, private_nh_),
   m_octree(NULL),
   m_maxRange(-1.0),
-  m_worldFrameId("map"), m_baseFrameId("base_link"), // it was base_link_gt
+  m_worldFrameId("robot1/map"), m_baseFrameId("robot1/base_link"), // it was base_link_gt
   m_useHeightMap(true),
   m_useColoredMap(false),
   m_colorFactor(0.8),
@@ -104,6 +104,7 @@ ROS_WARN("w: %s \n", m_worldFrameId.c_str() );
 
   m_nh_private.param("sensor_model/max_range", m_maxRange, m_maxRange);
 
+
   m_nh_private.param("resolution", m_res, m_res);
   m_nh_private.param("sensor_model/hit", probHit, 0.7);
   m_nh_private.param("sensor_model/miss", probMiss, 0.4);
@@ -131,6 +132,9 @@ ROS_WARN("w: %s \n", m_worldFrameId.c_str() );
 #endif
   }
 //ROS_WARN("res: %f", m_res);
+ROS_WARN("max range: %f", m_maxRange);
+ROS_WARN("incremental_2D_projection: %d", m_incrementalUpdate);
+
 
   // initialize octomap object & params
   m_octree = new OcTreeT(m_res);
@@ -598,8 +602,8 @@ ros::WallTime startTime, endTime;
 startTime = ros::WallTime::now();
 
   // all other points: free on ray, occupied on endpoint:
-const float maxz_thr = 0.3; //0.15; //1.1;
-const float minz_thr = 0.2; //0.05; //0.9;
+const float maxz_thr = 0.3 ; //0.15; //1.1;
+const float minz_thr = 0.1; //0.05; //0.9;
   for (PCLPointCloud::const_iterator it = nonground.begin(); it != nonground.end(); ++it){
 	if(it->z > maxz_thr || it->z < minz_thr)
 		continue;
