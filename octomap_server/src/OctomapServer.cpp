@@ -1673,7 +1673,32 @@ void OctomapServer::handlePostNodeTraversal(const ros::Time& rostime){
 
 	  //ROS_ERROR("gridmap size: %d %d\n", m_gridmap.info.height, m_gridmap.info.width );
 
-    m_mapPub.publish(m_gridmap); // kmHan disabled to speedup
+    //m_mapPub.publish(m_gridmap); // kmHan disabled to speedup
+    nav_msgs::OccupancyGrid gridmap_upad ;
+    const int noffset = 10 ;
+
+    gridmap_upad.header = m_gridmap.header;
+    gridmap_upad.info.origin = m_gridmap.info.origin ;
+    gridmap_upad.info.resolution = m_gridmap.info.resolution ;
+    gridmap_upad.info.height = m_gridmap.info.height + 2* noffset ; //
+    gridmap_upad.info.width  = m_gridmap.info.width  + 2* noffset ; //
+
+    for( int i=0; i < gridmap_upad.info.height; i++ )
+        for( int j=0; j < gridmap_upad.info.width; j++ )
+        	gridmap_upad.data.push_back(-1) ;
+
+    for( int i=0; i < m_gridmap.info.height; i++ )
+    {
+        for( int j=0; j < m_gridmap.info.width; j++ )
+        {
+        	int gm_idx  = i * m_gridmap.info.width + j ;
+        	int gmu_idx = (i + noffset) * gridmap_upad.info.width + (j + noffset) ;
+        	gridmap_upad.data[gmu_idx] = m_gridmap.data[gm_idx] ;
+        }
+    }
+
+    m_mapPub.publish(gridmap_upad);
+
 
 //    m_oGridMap2D.downSampleGridmap();
 //
