@@ -1675,7 +1675,7 @@ void OctomapServer::handlePostNodeTraversal(const ros::Time& rostime){
 
     //m_mapPub.publish(m_gridmap); // kmHan disabled to speedup
     nav_msgs::OccupancyGrid gridmap_upad ;
-    const int noffset = 10 ;
+    const int noffset = 1; //10 ;
 
     gridmap_upad.header = m_gridmap.header;
     gridmap_upad.info.origin = m_gridmap.info.origin ;
