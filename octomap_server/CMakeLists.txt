@@ -12,7 +12,7 @@ set(PACKAGE_DEPENDENCIES
   std_srvs
   octomap_ros
   octomap_msgs
-  gridmap_2d # kmHan
+  #gridmap_2d # kmHan
   cv_bridge # kmHan
   dynamic_reconfigure
   nodelet

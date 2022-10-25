@@ -36,7 +36,7 @@
 #include <nav_msgs/OccupancyGrid.h>
 #include <std_msgs/ColorRGBA.h>
 
-#include "../../../../gridmap_2d/include/gridmap_2d/GridMap2D.h"
+//#include "../../../../gridmap_2d/include/gridmap_2d/GridMap2D.h"
 //#include <gridmap_2d/GridMap2D.h>
 #include <cv_bridge/cv_bridge.h>
 #include <tf/transform_listener.h>
@@ -293,7 +293,7 @@ protected:
 
   // map image
   nav_msgs::OccupancyGridConstPtr m_pgridmap;
-  gridmap_2d::GridMap2D m_oGridMap2D;
+  //gridmap_2d::GridMap2D m_oGridMap2D;
   cv_bridge::CvImagePtr m_cb_ptr ;
   Eigen::Matrix4f m_sensorToWorld;
 
