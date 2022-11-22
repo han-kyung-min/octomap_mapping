@@ -1621,8 +1621,8 @@ void OctomapServer::handlePreNodeTraversal(const ros::Time& rostime){
       ROS_DEBUG("incremental update mode \n");
        if (mapChanged(oldMapInfo, m_gridmap.info))
        {
-          //ROS_DEBUG("2D grid map size changed to %dx%d", m_gridmap.info.width, m_gridmap.info.height);
-          ROS_WARN("2D grid map size changed to %dx%d", m_gridmap.info.width, m_gridmap.info.height);
+          ROS_DEBUG("2D grid map size changed to %dx%d", m_gridmap.info.width, m_gridmap.info.height);
+          //ROS_WARN("2D grid map size changed to %dx%d", m_gridmap.info.width, m_gridmap.info.height);
           adjustMapData(m_gridmap, oldMapInfo); // copying the map data to the re-sized map
 
           //ROS_WARN("pre 8 \n");
