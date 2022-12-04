@@ -291,6 +291,7 @@ protected:
 
   int32_t m_nNumPyrDownSample ;
 
+  nav_msgs::MapMetaData m_prev_mapinfo ;
   // map image
   nav_msgs::OccupancyGridConstPtr m_pgridmap;
   //gridmap_2d::GridMap2D m_oGridMap2D;
