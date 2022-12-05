@@ -658,9 +658,9 @@ for(KeySet::iterator it = free_cells.begin(), end=free_cells.end(); it!= end; ++
 {
   if (occupied_cells.find(*it) == occupied_cells.end())
   {
-    m_octree->updateNode(*it, false);
-
-    if( m_gridmap.info.width > 0 && m_gridmap.info.height > 0 )
+    OcTreeNode* node = m_octree->updateNode(*it, false);
+    bool boccupied = m_octree->isNodeOccupied( node ) ;
+    if( !boccupied && m_gridmap.info.width > 0 && m_gridmap.info.height > 0 )
     {
 		  OcTreeKey nodekey(it->k[0], it->k[1], it->k[2] );
 
@@ -695,7 +695,10 @@ for (KeySet::iterator it = occupied_cells.begin(), end=occupied_cells.end(); it!
 {
   m_octree->updateNode(*it, true);
 
-  if( m_gridmap.info.width > 0 && m_gridmap.info.height > 0 )
+  OcTreeNode* node = m_octree->updateNode(*it, false);
+  bool boccupied = m_octree->isNodeOccupied( node ) ;
+
+  if( boccupied && m_gridmap.info.width > 0 && m_gridmap.info.height > 0 )
   {
 		OcTreeKey nodekey(it->k[0], it->k[1], it->k[2]);
 		point3d pt3_w = m_octree->keyToCoord( nodekey, m_maxTreeDepth ) ; // w.r.t the world.
